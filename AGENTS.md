@@ -1,9 +1,19 @@
-<!-- BEGIN:nextjs-agent-rules -->
+## プロジェクト概要
 
-# This is NOT the Next.js you know
+つくばばん — 卒論・授業向けのアンケート募集サイト。
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## 技術スタック
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+- Next.js 16 (App Router, Turbopack) / React 19 / TypeScript
+- Tailwind CSS 4
+- ESLint 9
 
-<!-- END:nextjs-agent-rules -->
+## コマンド
+
+- `npm run dev` — 開発サーバー起動
+- `npm run build` — 本番ビルド
+- `npm run lint` — ESLint
+
+## ブランチ運用・デプロイ
+
+- `feature/*` → `develop` → `main` の順でPRを出す
