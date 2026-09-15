@@ -16,7 +16,9 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="p-6">{/* ここにページの内容を追加します */}</main>
+      <main className="jsutify-center p-6 text-center">
+        「データがない！」を「集まった！」に変える。卒論・研究のための即効アンケートアプリ。
+      </main>
     </div>
   );
 }
