@@ -14,7 +14,8 @@ export default function Home() {
           />
           <p className="text-center text-xs text-black">
             「データがない！」を「集まった！」に変える
-            <br/>アンケートの募集者と回答者を繋ぐアプリです
+            <br />
+            アンケートの募集者と回答者を繋ぐアプリです
           </p>
         </div>
       </header>
