@@ -12,8 +12,9 @@ export default function Home() {
             height={238}
             className="h-20 w-auto object-contain"
           />
-          <p className="text-xs text-black">
+          <p className="text-center text-xs text-black">
             「データがない！」を「集まった！」に変える
+            <br/>アンケートの募集者と回答者を繋ぐアプリです
           </p>
         </div>
       </header>
