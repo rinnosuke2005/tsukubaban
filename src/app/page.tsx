@@ -2,23 +2,23 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <header className="border-b border-gray-200 px-6 py-2">
-        <div className="flex items-center justify-center gap-3">
+    <div className="text-foreground min-h-screen bg-white">
+      <header className="border-border border-b px-6 py-7">
+        <div className="flex flex-col items-center justify-center gap-1">
           <Image
-            src="/rogo.png"
-            alt=""
-            width={48}
-            height={48}
-            className="h-30 w-30 object-contain"
+            src="/title.png"
+            alt="つくばばん"
+            width={763}
+            height={238}
+            className="h-20 w-auto object-contain"
           />
-          <h1 className="text-3xl font-bold">つくばばん</h1>
+          <p className="text-xs text-black">
+            「データがない！」を「集まった！」に変える
+          </p>
         </div>
       </header>
 
-      <main className="jsutify-center p-6 text-center">
-        「データがない！」を「集まった！」に変える。卒論・研究のための即効アンケートアプリ。
-      </main>
+      <main className="flex justify-center p-6"></main>
     </div>
   );
 }
