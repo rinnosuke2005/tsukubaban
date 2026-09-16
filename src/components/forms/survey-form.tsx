@@ -133,37 +133,15 @@ export function SurveyForm() {
           </Field>
 
           <Field>
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full bg-purple-400 px-5 text-base text-white hover:bg-purple-500"
+            >
               送信
             </Button>
           </Field>
         </FieldGroup>
       </form>
-
-      {/* 　データベース作成後に一覧表示は移動 */}
-      {submittedSurveys.length > 0 && (
-        <ul className="mt-4 flex flex-col gap-4">
-          {submittedSurveys.map((item, index) => (
-            <li
-              key={index}
-              className="border-border flex flex-col gap-1 border-b pb-4"
-            >
-              <p className="font-medium">{item.title}</p>
-              <p className="text-muted-foreground text-sm">
-                {item.recruiterName}（{item.affiliation}）
-              </p>
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary break-all underline"
-              >
-                {item.url}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
