@@ -1,10 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { mockSurveys } from "@/lib/mock/surveys";
+import { createSurvey } from "@/lib/api/surveys";
 import type { Survey } from "@/lib/types/survey";
 
 const initialSurvey: Survey = {
@@ -47,12 +48,13 @@ function validateSurvey(survey: Survey): SurveyErrors {
 }
 
 export function SurveyForm() {
+  const router = useRouter();
   const [survey, setSurvey] = useState<Survey>(initialSurvey);
   const [errors, setErrors] = useState<SurveyErrors>({});
-  const [submittedSurveys, setSubmittedSurveys] =
-    useState<Survey[]>(mockSurveys);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const validationErrors = validateSurvey(survey);
@@ -62,8 +64,20 @@ export function SurveyForm() {
     }
 
     setErrors({});
-    setSubmittedSurveys((prev) => [...prev, survey]);
-    setSurvey(initialSurvey);
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      await createSurvey(survey);
+      setSurvey(initialSurvey);
+      router.push("/");
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "アンケートの投稿に失敗しました",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -132,12 +146,17 @@ export function SurveyForm() {
             />
           </Field>
 
+          {submitError && (
+            <p className="text-destructive text-sm">{submitError}</p>
+          )}
+
           <Field>
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="w-full bg-purple-500 px-5 text-base text-white hover:bg-purple-600"
             >
-              送信
+              {isSubmitting ? "送信中..." : "送信"}
             </Button>
           </Field>
         </FieldGroup>
