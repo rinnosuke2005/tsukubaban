@@ -4,26 +4,32 @@ import { Button } from "@/components/ui/button";
 
 type HeaderProps = {
   showBackLink?: boolean;
+  showCreateButton?: boolean;
 };
 
-export function Header({ showBackLink = false }: HeaderProps) {
+export function Header({
+  showBackLink = false,
+  showCreateButton = true,
+}: HeaderProps) {
   return (
     <header className="border-border relative border-b px-6 py-7">
       <div className="absolute top-24 right-6 flex items-center gap-4">
         {showBackLink && (
           <Link
             href="/"
-            className="text-muted-foreground text-sm hover:underline"
+            className="text-muted-foreground inline-flex h-11 w-32 items-center justify-center text-sm hover:underline"
           >
-            ← 一覧に戻る
+            一覧に戻る
           </Link>
         )}
-        <Button
-          asChild
-          className="text-bold h-11 bg-purple-400 px-5 text-base text-white hover:bg-purple-500"
-        >
-          <Link href="/new">募集作成</Link>
-        </Button>
+        {showCreateButton && (
+          <Button
+            asChild
+            className="text-bold h-11 w-32 bg-purple-500 px-5 text-base text-white hover:bg-purple-600"
+          >
+            <Link href="/new">募集作成</Link>
+          </Button>
+        )}
       </div>
       <div className="flex flex-col items-center justify-center gap-1">
         <Image

@@ -135,7 +135,7 @@ export function SurveyForm() {
           <Field>
             <Button
               type="submit"
-              className="w-full bg-purple-400 px-5 text-base text-white hover:bg-purple-500"
+              className="w-full bg-purple-500 px-5 text-base text-white hover:bg-purple-600"
             >
               送信
             </Button>
