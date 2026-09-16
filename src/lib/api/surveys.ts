@@ -30,3 +30,20 @@ export async function fetchSurveys(): Promise<Survey[]> {
 
   return ((data ?? []) as SurveyRow[]).map(toSurvey);
 }
+
+export async function createSurvey(
+  survey: Pick<Survey, "title" | "recruiterName" | "affiliation" | "url">,
+): Promise<Survey> {
+  const { data, error } = await supabase.rpc("create_survey", {
+    p_title: survey.title,
+    p_recruiter_name: survey.recruiterName,
+    p_affiliation: survey.affiliation,
+    p_url: survey.url,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return toSurvey(data as SurveyRow);
+}

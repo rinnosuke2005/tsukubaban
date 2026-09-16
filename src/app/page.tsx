@@ -1,19 +1,27 @@
+"use client";
+
 import { Header } from "@/components/header";
 import { Separator } from "@/components/ui/separator";
-import { mockSurveys } from "@/lib/mock/surveys";
+import { useSurveys } from "@/hooks/use-surveys";
 
 export default function Home() {
+  const { surveys, isLoading, error } = useSurveys();
+
   return (
     <div className="text-foreground min-h-screen bg-white">
       <Header />
 
       <main className="flex justify-center p-6">
-        {mockSurveys.length === 0 ? (
+        {isLoading ? (
+          <p className="text-muted-foreground text-sm">読み込み中...</p>
+        ) : error ? (
+          <p className="text-destructive text-sm">{error}</p>
+        ) : surveys.length === 0 ? (
           <p className="text-muted-foreground text-sm">まだ募集はありません</p>
         ) : (
           <ul className="flex w-full max-w-xl flex-col">
-            {mockSurveys.map((survey, index) => (
-              <li key={survey.url}>
+            {surveys.map((survey, index) => (
+              <li key={survey.id ?? survey.url}>
                 {index > 0 && <Separator className="my-4" />}
                 <p className="font-medium">{survey.title}</p>
                 <p className="text-muted-foreground mt-1 text-sm">
