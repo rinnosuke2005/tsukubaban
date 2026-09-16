@@ -4,7 +4,7 @@ import { SurveyForm } from "@/components/forms/survey-form";
 export default function NewSurveyPage() {
   return (
     <div className="text-foreground min-h-screen bg-white">
-      <Header showBackLink />
+      <Header showBackLink showCreateButton={false} />
 
       <main className="flex justify-center p-6">
         <SurveyForm />
