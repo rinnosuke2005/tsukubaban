@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { SurveyForm } from "@/components/forms/survey-form";
 
 export default function Home() {
   return (
@@ -20,7 +21,9 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex justify-center p-6"></main>
+      <main className="flex justify-center p-6">
+        <SurveyForm />
+      </main>
     </div>
   );
 }
