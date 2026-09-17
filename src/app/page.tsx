@@ -69,7 +69,7 @@ export default function Home() {
                 <li key={survey.id ?? survey.url}>
                   <Card className="h-96 transition-shadow hover:shadow-md">
                     <CardHeader>
-                      <CardTitle className="line-clamp-2 text-lg font-bold">
+                      <CardTitle className="line-clamp-2 min-w-0 text-lg font-bold break-words">
                         {survey.title}
                       </CardTitle>
                       <CardDescription className="mt-1 flex min-w-0 flex-col gap-1">
