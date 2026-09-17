@@ -12,8 +12,22 @@ export function Header({
   showCreateButton = true,
 }: HeaderProps) {
   return (
-    <header className="border-border relative border-b px-6 py-7">
-      <div className="absolute top-24 right-6 flex items-center gap-4">
+    <header className="border-border relative flex flex-col gap-5 border-b px-6 py-7">
+      <div className="flex flex-col items-center justify-center gap-1">
+        <Image
+          src="/title.png"
+          alt="つくばばん"
+          width={763}
+          height={238}
+          className="h-20 w-auto object-contain"
+        />
+        <p className="text-muted-foreground text-center text-xs">
+          「データがない！」を「集まった！」に変える
+          <br />
+          アンケートの募集者と回答者を繋ぐアプリです
+        </p>
+      </div>
+      <div className="flex items-center gap-4 self-end sm:absolute sm:top-1/2 sm:right-6 sm:-translate-y-1/2">
         {showBackLink && (
           <Link
             href="/"
@@ -30,20 +44,6 @@ export function Header({
             <Link href="/new">募集作成</Link>
           </Button>
         )}
-      </div>
-      <div className="flex flex-col items-center justify-center gap-1">
-        <Image
-          src="/title.png"
-          alt="つくばばん"
-          width={763}
-          height={238}
-          className="h-20 w-auto object-contain"
-        />
-        <p className="text-muted-foreground text-center text-xs">
-          「データがない！」を「集まった！」に変える
-          <br />
-          アンケートの募集者と回答者を繋ぐアプリです
-        </p>
       </div>
     </header>
   );
