@@ -46,8 +46,7 @@ export default function Home() {
                   <CardContent
                     className={cn(
                       "flex min-h-0 flex-1 flex-col",
-                      survey.requirements.length > 0 &&
-                        "-mb-(--card-spacing)",
+                      survey.requirements.length > 0 && "-mb-(--card-spacing)",
                     )}
                   >
                     <a
@@ -66,7 +65,7 @@ export default function Home() {
                         <ul
                           className={cn(
                             "flex h-28 shrink-0 flex-wrap content-start gap-1.5 overflow-y-auto pr-1",
-                            "[scrollbar-color:var(--color-purple-300)_transparent] [scrollbar-width:thin]",
+                            "scrollbar-thin [scrollbar-color:var(--color-purple-300)_transparent]",
                             "[&::-webkit-scrollbar]:w-1.5",
                             "[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-purple-300",
                             "[&::-webkit-scrollbar-track]:bg-transparent",

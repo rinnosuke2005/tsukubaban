@@ -180,9 +180,7 @@ export function SurveyForm() {
                     type="text"
                     placeholder="例）大学生であること"
                     value={requirement}
-                    onChange={(e) =>
-                      updateRequirement(index, e.target.value)
-                    }
+                    onChange={(e) => updateRequirement(index, e.target.value)}
                   />
                   <Button
                     type="button"
