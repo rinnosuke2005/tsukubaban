@@ -19,7 +19,13 @@ import { useSurveys } from "@/hooks/use-surveys";
 
 const REQUIREMENTS_PREVIEW_COUNT = 3;
 
-function RequirementItem({ requirement }: { requirement: string }) {
+function RequirementItem({
+  requirement,
+  clamp = false,
+}: {
+  requirement: string;
+  clamp?: boolean;
+}) {
   return (
     <li className="text-foreground flex items-start gap-2 rounded-md bg-white px-2 py-1.5 text-sm break-words shadow-sm">
       <svg
@@ -32,7 +38,7 @@ function RequirementItem({ requirement }: { requirement: string }) {
         <rect x="3" y="3" width="18" height="18" rx="4" />
         <path d="m8 12 3 3 5-6" />
       </svg>
-      <span className="line-clamp-2">{requirement}</span>
+      <span className={clamp ? "line-clamp-1" : undefined}>{requirement}</span>
     </li>
   );
 }
@@ -58,17 +64,15 @@ export default function Home() {
                 0,
                 REQUIREMENTS_PREVIEW_COUNT,
               );
-              const hiddenCount =
-                survey.requirements.length - previewRequirements.length;
 
               return (
                 <li key={survey.id ?? survey.url}>
                   <Card className="h-96 transition-shadow hover:shadow-md">
                     <CardHeader>
-                      <CardTitle className="line-clamp-2 text-lg font-bold">
+                      <CardTitle className="line-clamp-2 min-w-0 text-lg font-bold break-words">
                         {survey.title}
                       </CardTitle>
-                      <CardDescription className="mt-1 flex flex-col gap-1">
+                      <CardDescription className="mt-1 flex min-w-0 flex-col gap-1">
                         <span className="text-foreground/70 flex min-w-0 items-center gap-1.5 truncate">
                           <svg
                             viewBox="0 0 24 24"
@@ -126,6 +130,7 @@ export default function Home() {
                               <RequirementItem
                                 key={i}
                                 requirement={requirement}
+                                clamp
                               />
                             ))}
                           </ul>
@@ -135,7 +140,7 @@ export default function Home() {
                           </p>
                         )}
                         <div className="h-4 shrink-0">
-                          {hiddenCount > 0 && (
+                          {survey.requirements.length > 0 && (
                             <Dialog>
                               <DialogTrigger asChild>
                                 <button
