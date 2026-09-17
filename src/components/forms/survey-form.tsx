@@ -13,6 +13,7 @@ const initialSurvey: Survey = {
   recruiterName: "",
   affiliation: "",
   url: "",
+  requirements: [],
 };
 
 type SurveyErrors = Partial<Record<keyof Survey, string>>;
@@ -54,6 +55,26 @@ export function SurveyForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  function addRequirement() {
+    setSurvey({ ...survey, requirements: [...survey.requirements, ""] });
+  }
+
+  function updateRequirement(index: number, value: string) {
+    setSurvey({
+      ...survey,
+      requirements: survey.requirements.map((r, i) =>
+        i === index ? value : r,
+      ),
+    });
+  }
+
+  function removeRequirement(index: number) {
+    setSurvey({
+      ...survey,
+      requirements: survey.requirements.filter((_, i) => i !== index),
+    });
+  }
+
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -67,8 +88,12 @@ export function SurveyForm() {
     setSubmitError(null);
     setIsSubmitting(true);
 
+    const trimmedRequirements = survey.requirements
+      .map((r) => r.trim())
+      .filter((r) => r !== "");
+
     try {
-      await createSurvey(survey);
+      await createSurvey({ ...survey, requirements: trimmedRequirements });
       setSurvey(initialSurvey);
       router.push("/");
     } catch (err) {
@@ -144,6 +169,41 @@ export function SurveyForm() {
               onChange={(e) => setSurvey({ ...survey, url: e.target.value })}
               aria-invalid={!!errors.url}
             />
+          </Field>
+
+          <Field>
+            <FieldLabel>募集要項（応募条件）</FieldLabel>
+            <div className="flex flex-col gap-2">
+              {survey.requirements.map((requirement, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="例）大学生であること"
+                    value={requirement}
+                    onChange={(e) =>
+                      updateRequirement(index, e.target.value)
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeRequirement(index)}
+                  >
+                    削除
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="self-start"
+              onClick={addRequirement}
+            >
+              ＋ 条件を追加
+            </Button>
           </Field>
 
           {submitError && (

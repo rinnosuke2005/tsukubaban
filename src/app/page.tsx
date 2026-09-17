@@ -35,6 +35,18 @@ export default function Home() {
                 >
                   {survey.url}
                 </a>
+                {survey.requirements.length > 0 && (
+                  <ul className="mt-2 flex flex-wrap gap-1.5">
+                    {survey.requirements.map((requirement, i) => (
+                      <li
+                        key={i}
+                        className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs"
+                      >
+                        {requirement}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

@@ -7,6 +7,7 @@ type SurveyRow = {
   recruiter_name: string;
   affiliation: string;
   url: string;
+  requirements: string[];
   created_at: string;
 };
 
@@ -17,6 +18,7 @@ function toSurvey(row: SurveyRow): Survey {
     recruiterName: row.recruiter_name,
     affiliation: row.affiliation,
     url: row.url,
+    requirements: row.requirements ?? [],
     createdAt: row.created_at,
   };
 }
@@ -32,13 +34,17 @@ export async function fetchSurveys(): Promise<Survey[]> {
 }
 
 export async function createSurvey(
-  survey: Pick<Survey, "title" | "recruiterName" | "affiliation" | "url">,
+  survey: Pick<
+    Survey,
+    "title" | "recruiterName" | "affiliation" | "url" | "requirements"
+  >,
 ): Promise<Survey> {
   const { data, error } = await supabase.rpc("create_survey", {
     p_title: survey.title,
     p_recruiter_name: survey.recruiterName,
     p_affiliation: survey.affiliation,
     p_url: survey.url,
+    p_requirements: survey.requirements,
   });
 
   if (error) {
