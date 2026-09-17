@@ -12,7 +12,7 @@ export function Header({
   showCreateButton = true,
 }: HeaderProps) {
   return (
-    <header className="border-border relative border-b flex flex-col gap-5 px-6 py-7">
+    <header className="border-border relative flex flex-col gap-5 border-b px-6 py-7">
       <div className="flex flex-col items-center justify-center gap-1">
         <Image
           src="/title.png"
@@ -27,7 +27,7 @@ export function Header({
           アンケートの募集者と回答者を繋ぐアプリです
         </p>
       </div>
-      <div className="flex items-center gap-4 sm:absolute sm:top-1/2 sm:right-6 sm:-translate-y-1/2 self-end">
+      <div className="flex items-center gap-4 self-end sm:absolute sm:top-1/2 sm:right-6 sm:-translate-y-1/2">
         {showBackLink && (
           <Link
             href="/"
