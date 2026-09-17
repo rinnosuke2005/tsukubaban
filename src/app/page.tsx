@@ -140,7 +140,7 @@ export default function Home() {
                               <DialogTrigger asChild>
                                 <button
                                   type="button"
-                                  className="text-foreground/60 text-xs font-medium hover:text-foreground hover:underline"
+                                  className="text-foreground/60 hover:text-foreground text-xs font-medium hover:underline"
                                 >
                                   すべて見る（{survey.requirements.length}件）
                                 </button>
@@ -150,14 +150,12 @@ export default function Home() {
                                   <DialogTitle>応募条件</DialogTitle>
                                 </DialogHeader>
                                 <ul className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto pr-1">
-                                  {survey.requirements.map(
-                                    (requirement, i) => (
-                                      <RequirementItem
-                                        key={i}
-                                        requirement={requirement}
-                                      />
-                                    ),
-                                  )}
+                                  {survey.requirements.map((requirement, i) => (
+                                    <RequirementItem
+                                      key={i}
+                                      requirement={requirement}
+                                    />
+                                  ))}
                                 </ul>
                               </DialogContent>
                             </Dialog>
