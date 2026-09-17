@@ -69,7 +69,7 @@ export default function Home() {
                         {survey.title}
                       </CardTitle>
                       <CardDescription className="mt-1 flex flex-col gap-1">
-                        <span className="text-foreground/70 flex items-center gap-1.5 truncate">
+                        <span className="text-foreground/70 flex min-w-0 items-center gap-1.5 truncate">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -82,7 +82,7 @@ export default function Home() {
                           </svg>
                           {survey.recruiterName}
                         </span>
-                        <span className="flex items-center gap-1.5 truncate text-xs">
+                        <span className="flex min-w-0 items-center gap-1.5 truncate text-xs">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
