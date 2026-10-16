@@ -320,9 +320,6 @@ export function SurveyForm() {
             <FieldDescription className="text-right tabular-nums">
               {survey.description.length} / {DESCRIPTION_MAX_LENGTH}
             </FieldDescription>
-            <FieldDescription>
-              所要時間、回答期間、データの扱いなどを書くと、回答者が判断しやすくなります
-            </FieldDescription>
           </Field>
 
           <Field>
