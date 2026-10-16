@@ -20,7 +20,8 @@ const SURVEYS = [
     p_affiliation: "つくば市役所",
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-02",
-    p_description: "SNSの利用頻度と利用目的についてお尋ねします。所要時間は5分程度です。",
+    p_description:
+      "SNSの利用頻度と利用目的についてお尋ねします。所要時間は5分程度です。",
     p_requirements: ["20歳以上であること"],
   },
   {
@@ -40,7 +41,8 @@ const SURVEYS = [
     p_affiliation: "○○株式会社 マーケティング部",
     p_contact_type: "email",
     p_contact_value: "seed-bousai@example.com",
-    p_description: "防災意識と日頃の備えについて、メールで質問票をお送りします。回答はメールへの返信でお願いします。",
+    p_description:
+      "防災意識と日頃の備えについて、メールで質問票をお送りします。回答はメールへの返信でお願いします。",
     p_requirements: [
       "筑波大学の学生であること",
       "20歳以上であること",
@@ -48,12 +50,15 @@ const SURVEYS = [
     ],
   },
   {
-    p_title: "オンラインショッピングに関するアンケート調査のご協力をお願いします",
+    p_title:
+      "オンラインショッピングに関するアンケート調査のご協力をお願いします",
     p_recruiter_name: "鈴木一郎（筑波大学大学院システム情報工学研究群）",
     p_affiliation: "筑波大学附属病院 臨床研究推進センター",
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-05",
-    p_requirements: ["過去1年以内にオンラインショッピングを利用したことがある方"],
+    p_requirements: [
+      "過去1年以内にオンラインショッピングを利用したことがある方",
+    ],
   },
   {
     p_title: "オンライン授業と対面授業の学習効果比較に関する調査",
@@ -61,7 +66,8 @@ const SURVEYS = [
     p_affiliation: "筑波大学大学院 システム情報工学研究群 知能機能システム専攻",
     p_contact_type: "phone",
     p_contact_value: "029-000-0000",
-    p_description: "オンライン授業と対面授業の学習効果について、電話で10分程度のインタビューを行います。",
+    p_description:
+      "オンライン授業と対面授業の学習効果について、電話で10分程度のインタビューを行います。",
     p_requirements: [
       "筑波大学の学生であること",
       "回答は任意で、いつでも中断できます",
@@ -76,12 +82,14 @@ const SURVEYS = [
     p_requirements: [],
   },
   {
-    p_title: "大学生の睡眠習慣と学業成績の関連性に関するアンケート調査へのご協力をお願いいたします",
+    p_title:
+      "大学生の睡眠習慣と学業成績の関連性に関するアンケート調査へのご協力をお願いいたします",
     p_recruiter_name: "山田研究室",
     p_affiliation: "筑波大学 情報学群 情報科学類",
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-08",
-    p_description: "睡眠時間・就寝時刻と学業成績の関連を調べる卒業研究です。平日と休日の睡眠習慣、授業への出席状況、直近の学期の成績区分についてお尋ねします。所要時間は10分程度で、設問には無理のない範囲でお答えください。回答内容は統計処理のみに使用し、個人が特定される形で公開することはありません。回答後に同意を撤回したい場合は、募集者までご連絡ください。",
+    p_description:
+      "睡眠時間・就寝時刻と学業成績の関連を調べる卒業研究です。平日と休日の睡眠習慣、授業への出席状況、直近の学期の成績区分についてお尋ねします。所要時間は10分程度で、設問には無理のない範囲でお答えください。回答内容は統計処理のみに使用し、個人が特定される形で公開することはありません。回答後に同意を撤回したい場合は、募集者までご連絡ください。",
     p_requirements: [
       "筑波大学の学生であること",
       "スマートフォンを所有していること",
@@ -96,7 +104,10 @@ const SURVEYS = [
     p_affiliation: "筑波大学",
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-09",
-    p_requirements: ["20歳以上であること", "回答は任意で、いつでも中断できます"],
+    p_requirements: [
+      "20歳以上であること",
+      "回答は任意で、いつでも中断できます",
+    ],
   },
   {
     p_title: "つくば市内の交通利便性に関する調査",
