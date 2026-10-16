@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -47,7 +48,7 @@ const CONTACT_FIELD: Record<
     inputType: "tel",
     placeholder: "例）090-1234-5678",
     notice:
-      "入力した番号は詳細ページで全員に公開されます。連絡可能な時間帯は概要に書いてください",
+      "入力した番号は詳細ページで全員に公開されます。",
   },
 };
 
@@ -296,6 +297,7 @@ export function SurveyForm() {
               }
               aria-invalid={!!errors.contactValue}
             />
+            <FieldError>{errors.contactValue}</FieldError>
             {contactField.notice && (
               <FieldDescription>{contactField.notice}</FieldDescription>
             )}
