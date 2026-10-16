@@ -47,8 +47,7 @@ const CONTACT_FIELD: Record<
     label: "連絡先の電話番号",
     inputType: "tel",
     placeholder: "例）090-1234-5678",
-    notice:
-      "入力した番号は詳細ページで全員に公開されます。",
+    notice: "入力した番号は詳細ページで全員に公開されます。",
   },
 };
 
