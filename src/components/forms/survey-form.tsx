@@ -6,29 +6,84 @@ import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { createSurvey } from "@/lib/api/surveys";
-import type { Survey } from "@/lib/types/survey";
+import {
+  CONTACT_TYPE_LABELS,
+  type ContactType,
+  type Survey,
+} from "@/lib/types/survey";
+
+const DESCRIPTION_MAX_LENGTH = 700;
+
+const CONTACT_TYPES: ContactType[] = ["url", "email", "phone"];
+
+const CONTACT_FIELD: Record<
+  ContactType,
+  {
+    label: string;
+    inputType: "url" | "email" | "tel";
+    placeholder: string;
+    notice?: string;
+  }
+> = {
+  url: {
+    label: "アンケートのURL",
+    inputType: "url",
+    placeholder: "https://...",
+  },
+  email: {
+    label: "回答の送付先メールアドレス",
+    inputType: "email",
+    placeholder: "例）example@u.tsukuba.ac.jp",
+    notice: "入力したアドレスは詳細ページで全員に公開されます",
+  },
+  phone: {
+    label: "連絡先の電話番号",
+    inputType: "tel",
+    placeholder: "例）090-1234-5678",
+    notice: "入力した番号は詳細ページで全員に公開されます。",
+  },
+};
 
 const initialSurvey: Survey = {
   title: "",
   recruiterName: "",
   affiliation: "",
-  url: "",
+  contactType: "url",
+  contactValue: "",
+  description: "",
   requirements: [""],
 };
 
 type SurveyErrors = Partial<Record<keyof Survey, string>>;
 
+const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+$/;
+
 function isValidUrl(value: string) {
   try {
-    new URL(value);
-    return true;
+    const { protocol } = new URL(value);
+    return protocol === "http:" || protocol === "https:";
   } catch {
     return false;
+  }
+}
+
+function validateContact(survey: Survey): string | undefined {
+  const value = survey.contactValue.trim();
+  const { label } = CONTACT_FIELD[survey.contactType];
+
+  if (!value) return `${label}を入力してください`;
+  if (survey.contactType === "url" && !isValidUrl(value)) {
+    return "有効なURLの形式で入力してください";
+  }
+  if (survey.contactType === "email" && !EMAIL_PATTERN.test(value)) {
+    return "有効なメールアドレスの形式で入力してください";
   }
 }
 
@@ -44,10 +99,9 @@ function validateSurvey(survey: Survey): SurveyErrors {
   if (!survey.affiliation.trim()) {
     errors.affiliation = "所属を入力してください";
   }
-  if (!survey.url.trim()) {
-    errors.url = "アンケートのURLを入力してください";
-  } else if (!isValidUrl(survey.url)) {
-    errors.url = "有効なURLの形式で入力してください";
+  const contactError = validateContact(survey);
+  if (contactError) {
+    errors.contactValue = contactError;
   }
 
   return errors;
@@ -69,6 +123,14 @@ export function SurveyForm() {
     requirementInputRefs.current[index]?.focus();
     pendingFocusRequirementIndex.current = null;
   }, [survey.requirements.length]);
+
+  const contactField = CONTACT_FIELD[survey.contactType];
+
+  function changeContactType(contactType: ContactType) {
+    if (contactType === survey.contactType) return;
+    setSurvey({ ...survey, contactType, contactValue: "" });
+    setErrors((prev) => ({ ...prev, contactValue: undefined }));
+  }
 
   function addRequirement() {
     pendingFocusRequirementIndex.current = survey.requirements.length;
@@ -133,7 +195,12 @@ export function SurveyForm() {
       .filter((r) => r !== "");
 
     try {
-      await createSurvey({ ...survey, requirements: trimmedRequirements });
+      await createSurvey({
+        ...survey,
+        contactValue: survey.contactValue.trim(),
+        description: survey.description.trim(),
+        requirements: trimmedRequirements,
+      });
       setSurvey(initialSurvey);
       router.push("/");
     } catch (err) {
@@ -197,18 +264,65 @@ export function SurveyForm() {
             </Field>
           </div>
 
-          <Field data-invalid={!!errors.url}>
-            <FieldLabel htmlFor="survey-url">
-              アンケートのURL<span className="text-destructive">*</span>
+          <Field data-invalid={!!errors.contactValue}>
+            <FieldLabel id="survey-contact-type-label">
+              回答方法<span className="text-destructive">*</span>
             </FieldLabel>
+            <div
+              role="group"
+              aria-labelledby="survey-contact-type-label"
+              className="border-input grid grid-cols-3 overflow-hidden rounded-lg border"
+            >
+              {CONTACT_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  aria-pressed={survey.contactType === type}
+                  onClick={() => changeContactType(type)}
+                  className="text-muted-foreground border-input py-2 text-sm not-first:border-l aria-pressed:bg-purple-50 aria-pressed:font-bold aria-pressed:text-purple-700"
+                >
+                  {CONTACT_TYPE_LABELS[type]}
+                </button>
+              ))}
+            </div>
             <Input
-              id="survey-url"
-              type="url"
-              placeholder="https://..."
-              value={survey.url}
-              onChange={(e) => setSurvey({ ...survey, url: e.target.value })}
-              aria-invalid={!!errors.url}
+              id="survey-contact-value"
+              type={contactField.inputType}
+              aria-label={contactField.label}
+              placeholder={contactField.placeholder}
+              value={survey.contactValue}
+              onChange={(e) =>
+                setSurvey({ ...survey, contactValue: e.target.value })
+              }
+              aria-invalid={!!errors.contactValue}
             />
+            <FieldError>{errors.contactValue}</FieldError>
+            {contactField.notice && (
+              <FieldDescription>{contactField.notice}</FieldDescription>
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="survey-description">
+              アンケートの概要
+            </FieldLabel>
+            <Textarea
+              id="survey-description"
+              maxLength={DESCRIPTION_MAX_LENGTH}
+              placeholder={
+                "例）卒業論文の調査として、学習習慣と睡眠時間の関係を調べています。\n所要時間：約5分\n回答期間：11月15日まで"
+              }
+              value={survey.description}
+              onChange={(e) =>
+                setSurvey({ ...survey, description: e.target.value })
+              }
+            />
+            <FieldDescription className="text-right tabular-nums">
+              {survey.description.length} / {DESCRIPTION_MAX_LENGTH}
+            </FieldDescription>
+            <FieldDescription>
+              所要時間、回答期間、データの扱いなどを書くと、回答者が判断しやすくなります
+            </FieldDescription>
           </Field>
 
           <Field>
