@@ -2,6 +2,10 @@
 alter table public.surveys
   add column if not exists description text not null default '';
 
+alter table public.surveys
+  add constraint surveys_description_length_check
+  check (char_length(description) <= 700);
+
 drop function if exists public.create_survey(text, text, text, text, text[]);
 
 create function public.create_survey(
