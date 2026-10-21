@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { BackLink } from "@/components/back-link";
 import { Header } from "@/components/header";
 import { useSurvey } from "@/hooks/use-survey";
 import { CONTACT_TYPE_LABELS, type Survey } from "@/lib/types/survey";
@@ -93,7 +94,7 @@ function SurveyDetail({ survey }: { survey: Survey }) {
   const postedAt = formatDate(survey.createdAt);
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 pt-6 pb-28 sm:px-6 md:pb-16">
+    <div className="mx-auto w-full max-w-5xl px-4 pt-2 pb-28 sm:px-6 md:pb-16">
       <h1 className="text-2xl font-bold break-words md:text-3xl">
         {survey.title}
       </h1>
@@ -174,7 +175,11 @@ export default function SurveyDetailPage() {
 
   return (
     <div className="text-foreground min-h-screen bg-white">
-      <Header showBackLink />
+      <Header />
+
+      <div className="mx-auto w-full max-w-5xl px-4 pt-2 sm:px-6">
+        <BackLink />
+      </div>
 
       {isLoading ? (
         <p className="text-muted-foreground px-4 py-6 text-sm sm:px-8">
