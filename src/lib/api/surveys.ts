@@ -10,6 +10,9 @@ type SurveyRow = {
   contact_value: string;
   description: string;
   requirements: string[];
+  has_reward: boolean | null;
+  reward_detail: string | null;
+  estimated_minutes: number | null;
   created_at: string;
 };
 
@@ -23,6 +26,9 @@ function toSurvey(row: SurveyRow): Survey {
     contactValue: row.contact_value,
     description: row.description ?? "",
     requirements: row.requirements ?? [],
+    hasReward: row.has_reward,
+    rewardDetail: row.reward_detail ?? "",
+    estimatedMinutes: row.estimated_minutes,
     createdAt: row.created_at,
   };
 }
@@ -58,6 +64,9 @@ export async function createSurvey(
     | "contactValue"
     | "description"
     | "requirements"
+    | "hasReward"
+    | "rewardDetail"
+    | "estimatedMinutes"
   >,
 ): Promise<Survey> {
   const { data, error } = await supabase.rpc("create_survey", {
@@ -68,6 +77,9 @@ export async function createSurvey(
     p_contact_value: survey.contactValue,
     p_description: survey.description,
     p_requirements: survey.requirements,
+    p_has_reward: survey.hasReward,
+    p_reward_detail: survey.rewardDetail,
+    p_estimated_minutes: survey.estimatedMinutes,
   });
 
   if (error) {

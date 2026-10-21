@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useSurveys } from "@/hooks/use-surveys";
-import { CONTACT_TYPE_LABELS } from "@/lib/types/survey";
+import { CONTACT_TYPE_LABELS, formatReward } from "@/lib/types/survey";
 
 const REQUIREMENTS_PREVIEW_COUNT = 3;
 
@@ -54,13 +54,15 @@ export default function Home() {
                 REQUIREMENTS_PREVIEW_COUNT,
               );
 
+              const reward = formatReward(survey);
+
               return (
                 <li key={survey.id}>
                   <Link
                     href={`/surveys/${survey.id}`}
                     className="group focus-visible:ring-ring/50 block cursor-pointer rounded-xl outline-none focus-visible:ring-3"
                   >
-                    <Card className="h-96 transition-all duration-200 group-hover:-translate-y-1 group-hover:border-purple-300 group-hover:shadow-lg">
+                    <Card className="h-[26rem] transition-all duration-200 group-hover:-translate-y-1 group-hover:border-purple-300 group-hover:shadow-lg">
                       <CardHeader>
                         <CardTitle className="line-clamp-2 min-w-0 text-lg font-bold break-words transition-colors group-hover:text-purple-700">
                           {survey.title}
@@ -92,6 +94,42 @@ export default function Home() {
                             </svg>
                             {survey.affiliation}
                           </span>
+                          {reward && (
+                            <span className="flex min-w-0 items-center gap-1.5 truncate text-xs">
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                className="size-3.5 shrink-0"
+                              >
+                                <rect
+                                  x="3"
+                                  y="8"
+                                  width="18"
+                                  height="4"
+                                  rx="1"
+                                />
+                                <path d="M5 12v8h14v-8M12 8v12M12 8c-2 0-4-1-4-3a2 2 0 0 1 4 0c0 1 0 3 0 3Zm0 0c2 0 4-1 4-3a2 2 0 0 0-4 0" />
+                              </svg>
+                              謝礼：{reward}
+                            </span>
+                          )}
+                          {survey.estimatedMinutes !== null && (
+                            <span className="flex min-w-0 items-center gap-1.5 truncate text-xs">
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                className="size-3.5 shrink-0"
+                              >
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 7v5l3 2" />
+                              </svg>
+                              所要時間：約{survey.estimatedMinutes}分
+                            </span>
+                          )}
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="-mb-(--card-spacing) flex min-h-0 flex-1 flex-col">
