@@ -3,14 +3,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 type HeaderProps = {
-  showBackLink?: boolean;
   showCreateButton?: boolean;
 };
 
-export function Header({
-  showBackLink = false,
-  showCreateButton = true,
-}: HeaderProps) {
+export function Header({ showCreateButton = true }: HeaderProps) {
   return (
     <header className="border-border relative flex flex-col gap-5 border-b px-6 py-7">
       <div className="flex flex-col items-center justify-center gap-1">
@@ -28,14 +24,6 @@ export function Header({
         </p>
       </div>
       <div className="flex items-center gap-4 self-end sm:absolute sm:top-1/2 sm:right-6 sm:-translate-y-1/2">
-        {showBackLink && (
-          <Link
-            href="/"
-            className="text-muted-foreground inline-flex h-11 w-32 items-center justify-center text-sm hover:underline"
-          >
-            一覧に戻る
-          </Link>
-        )}
         {showCreateButton && (
           <Button
             asChild
