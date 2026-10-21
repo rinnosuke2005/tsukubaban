@@ -58,11 +58,11 @@ export default function Home() {
                 <li key={survey.id}>
                   <Link
                     href={`/surveys/${survey.id}`}
-                    className="focus-visible:ring-ring/50 block rounded-xl outline-none focus-visible:ring-3"
+                    className="group focus-visible:ring-ring/50 block cursor-pointer rounded-xl outline-none focus-visible:ring-3"
                   >
-                    <Card className="h-96 transition-shadow hover:shadow-md">
+                    <Card className="h-96 transition-all duration-200 group-hover:-translate-y-1 group-hover:border-purple-300 group-hover:shadow-lg">
                       <CardHeader>
-                        <CardTitle className="line-clamp-2 min-w-0 text-lg font-bold break-words">
+                        <CardTitle className="line-clamp-2 min-w-0 text-lg font-bold break-words transition-colors group-hover:text-purple-700">
                           {survey.title}
                         </CardTitle>
                         <CardDescription className="mt-1 flex min-w-0 flex-col gap-1">
@@ -117,7 +117,7 @@ export default function Home() {
                             </p>
                           )}
                           <div className="h-4 shrink-0">
-                            <span className="text-foreground/60 text-xs font-medium">
+                            <span className="text-foreground/60 text-xs font-medium transition-colors group-hover:text-purple-700 group-hover:underline">
                               詳細を見る &gt;
                             </span>
                           </div>
