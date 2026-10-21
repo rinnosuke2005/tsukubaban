@@ -20,6 +20,13 @@ import {
 } from "@/lib/types/survey";
 
 const DESCRIPTION_MAX_LENGTH = 700;
+const REWARD_DETAIL_MAX_LENGTH = 100;
+const ESTIMATED_MINUTES_MAX = 999;
+
+const REWARD_OPTIONS = [
+  { value: true, label: "あり" },
+  { value: false, label: "なし" },
+];
 
 const CONTACT_TYPES: ContactType[] = ["url", "email", "phone"];
 
@@ -59,6 +66,9 @@ const initialSurvey: Survey = {
   contactValue: "",
   description: "",
   requirements: [""],
+  hasReward: null,
+  rewardDetail: "",
+  estimatedMinutes: null,
 };
 
 type SurveyErrors = Partial<Record<keyof Survey, string>>;
@@ -87,7 +97,17 @@ function validateContact(survey: Survey): string | undefined {
   }
 }
 
-function validateSurvey(survey: Survey): SurveyErrors {
+function parseEstimatedMinutes(value: string): number | null {
+  const trimmed = value.trim();
+  if (!/^\d+$/.test(trimmed)) return null;
+  const minutes = Number(trimmed);
+  return minutes >= 1 && minutes <= ESTIMATED_MINUTES_MAX ? minutes : null;
+}
+
+function validateSurvey(
+  survey: Survey,
+  estimatedMinutesInput: string,
+): SurveyErrors {
   const errors: SurveyErrors = {};
 
   if (!survey.title.trim()) {
@@ -103,6 +123,12 @@ function validateSurvey(survey: Survey): SurveyErrors {
   if (contactError) {
     errors.contactValue = contactError;
   }
+  if (survey.hasReward === null) {
+    errors.hasReward = "謝礼の有無を選択してください";
+  }
+  if (parseEstimatedMinutes(estimatedMinutesInput) === null) {
+    errors.estimatedMinutes = `所要時間を1〜${ESTIMATED_MINUTES_MAX}の整数（分）で入力してください`;
+  }
 
   return errors;
 }
@@ -110,6 +136,8 @@ function validateSurvey(survey: Survey): SurveyErrors {
 export function SurveyForm() {
   const router = useRouter();
   const [survey, setSurvey] = useState<Survey>(initialSurvey);
+  // number 入力は入力途中の空文字や未確定値を扱うため、文字列のまま保持して送信時に変換する
+  const [estimatedMinutesInput, setEstimatedMinutesInput] = useState("");
   const [errors, setErrors] = useState<SurveyErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -130,6 +158,16 @@ export function SurveyForm() {
     if (contactType === survey.contactType) return;
     setSurvey({ ...survey, contactType, contactValue: "" });
     setErrors((prev) => ({ ...prev, contactValue: undefined }));
+  }
+
+  function changeHasReward(hasReward: boolean) {
+    if (hasReward === survey.hasReward) return;
+    setSurvey({
+      ...survey,
+      hasReward,
+      rewardDetail: hasReward ? survey.rewardDetail : "",
+    });
+    setErrors((prev) => ({ ...prev, hasReward: undefined }));
   }
 
   function addRequirement() {
@@ -180,7 +218,7 @@ export function SurveyForm() {
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const validationErrors = validateSurvey(survey);
+    const validationErrors = validateSurvey(survey, estimatedMinutesInput);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -199,9 +237,12 @@ export function SurveyForm() {
         ...survey,
         contactValue: survey.contactValue.trim(),
         description: survey.description.trim(),
+        rewardDetail: survey.rewardDetail.trim(),
+        estimatedMinutes: parseEstimatedMinutes(estimatedMinutesInput),
         requirements: trimmedRequirements,
       });
       setSurvey(initialSurvey);
+      setEstimatedMinutesInput("");
       router.push("/");
     } catch (err) {
       setSubmitError(
@@ -302,6 +343,61 @@ export function SurveyForm() {
             )}
           </Field>
 
+          <Field data-invalid={!!errors.hasReward}>
+            <FieldLabel id="survey-has-reward-label">
+              謝礼<span className="text-destructive">*</span>
+            </FieldLabel>
+            <div
+              role="group"
+              aria-labelledby="survey-has-reward-label"
+              className="border-input grid grid-cols-2 overflow-hidden rounded-lg border"
+            >
+              {REWARD_OPTIONS.map(({ value, label }) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-pressed={survey.hasReward === value}
+                  onClick={() => changeHasReward(value)}
+                  className="text-muted-foreground border-input py-2 text-sm not-first:border-l aria-pressed:bg-purple-50 aria-pressed:font-bold aria-pressed:text-purple-700"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {survey.hasReward && (
+              <Input
+                id="survey-reward-detail"
+                type="text"
+                aria-label="謝礼の内容"
+                maxLength={REWARD_DETAIL_MAX_LENGTH}
+                placeholder="例）図書カード500円"
+                value={survey.rewardDetail}
+                onChange={(e) =>
+                  setSurvey({ ...survey, rewardDetail: e.target.value })
+                }
+              />
+            )}
+            <FieldError>{errors.hasReward}</FieldError>
+          </Field>
+
+          <Field data-invalid={!!errors.estimatedMinutes}>
+            <FieldLabel htmlFor="survey-estimated-minutes">
+              所要時間（分）<span className="text-destructive">*</span>
+            </FieldLabel>
+            <Input
+              id="survey-estimated-minutes"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={ESTIMATED_MINUTES_MAX}
+              placeholder="例）5"
+              value={estimatedMinutesInput}
+              onChange={(e) => setEstimatedMinutesInput(e.target.value)}
+              aria-invalid={!!errors.estimatedMinutes}
+            />
+            <FieldError>{errors.estimatedMinutes}</FieldError>
+          </Field>
+
           <Field>
             <FieldLabel htmlFor="survey-description">
               アンケートの概要
@@ -310,7 +406,7 @@ export function SurveyForm() {
               id="survey-description"
               maxLength={DESCRIPTION_MAX_LENGTH}
               placeholder={
-                "例）卒業論文の調査として、学習習慣と睡眠時間の関係を調べています。\n所要時間：約5分\n回答期間：11月15日まで"
+                "例）卒業論文の調査として、学習習慣と睡眠時間の関係を調べています。\n回答期間：11月15日まで"
               }
               value={survey.description}
               onChange={(e) =>
@@ -319,9 +415,6 @@ export function SurveyForm() {
             />
             <FieldDescription className="text-right tabular-nums">
               {survey.description.length} / {DESCRIPTION_MAX_LENGTH}
-            </FieldDescription>
-            <FieldDescription>
-              所要時間、回答期間、データの扱いなどを書くと、回答者が判断しやすくなります
             </FieldDescription>
           </Field>
 
