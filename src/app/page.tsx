@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
+import { SurveyFilterBar } from "@/components/survey-filter-bar";
 import {
   Card,
   CardContent,
@@ -9,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useSurveyFilters } from "@/hooks/use-survey-filters";
 import { useSurveys } from "@/hooks/use-surveys";
 import {
   Dialog,
@@ -17,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { matchesFilters } from "@/lib/survey-filters";
 import { CONTACT_TYPE_LABELS, formatReward } from "@/lib/types/survey";
 
 const REQUIREMENTS_PREVIEW_COUNT = 3;
@@ -53,11 +57,25 @@ function RequirementItem({
 export default function Home() {
   const { surveys, isLoading, error } = useSurveys();
 
+  const { filters, setFilter, clearFilters, isDefault } = useSurveyFilters();
+
+  const filteredSurveys = useMemo(
+    () => surveys.filter((survey) => matchesFilters(survey, filters)),
+    [surveys, filters],
+  );
+
   return (
     <div className="text-foreground min-h-screen bg-white">
       <Header />
 
       <main className="px-4 py-6 sm:px-8 lg:px-30">
+        <SurveyFilterBar
+          filters={filters}
+          setFilter={setFilter}
+          clearFilters={clearFilters}
+          isDefault={isDefault}
+        />
+
         {isLoading ? (
           <p className="text-muted-foreground text-base">読み込み中...</p>
         ) : error ? (
@@ -66,9 +84,13 @@ export default function Home() {
           <p className="text-muted-foreground text-base">
             まだ募集はありません
           </p>
+        ) : filteredSurveys.length === 0 ? (
+          <p className="text-muted-foreground text-base">
+            条件に一致する募集はありません
+          </p>
         ) : (
           <ul className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {surveys.map((survey) => {
+            {filteredSurveys.map((survey) => {
               const reward = formatReward(survey);
               const previewRequirements = survey.requirements.slice(
                 0,
