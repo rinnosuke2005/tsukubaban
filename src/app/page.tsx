@@ -203,47 +203,6 @@ export default function Home() {
                               </DialogContent>
                             </Dialog>
                           )}
-                          {survey.preferredRequirements.length > 0 && (
-                            <div className="shrink-0">
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <button
-                                    type="button"
-                                    aria-label={`${survey.title}の歓迎条件を見る`}
-                                    className="text-foreground/60 focus-visible:ring-ring/50 relative z-10 cursor-pointer rounded-sm text-sm font-medium transition-colors outline-none group-hover:text-purple-700 group-hover:underline hover:underline focus-visible:ring-3"
-                                  >
-                                    歓迎条件を見る &gt;
-                                  </button>
-                                </DialogTrigger>
-                                <DialogContent
-                                  className="max-h-[85dvh] w-[calc(100%-2rem)] overflow-y-auto"
-                                  aria-describedby={undefined}
-                                >
-                                  <DialogHeader className="min-w-0 pr-6">
-                                    <DialogTitle className="leading-snug break-words">
-                                      {survey.title}の歓迎条件
-                                    </DialogTitle>
-                                  </DialogHeader>
-                                  {survey.preferredRequirements.length > 0 ? (
-                                    <ul className="flex min-w-0 flex-col gap-2">
-                                      {survey.preferredRequirements.map(
-                                        (requirement, i) => (
-                                          <RequirementItem
-                                            key={i}
-                                            requirement={requirement}
-                                          />
-                                        ),
-                                      )}
-                                    </ul>
-                                  ) : (
-                                    <p className="text-foreground/50 text-base">
-                                      なし
-                                    </p>
-                                  )}
-                                </DialogContent>
-                              </Dialog>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </CardContent>
