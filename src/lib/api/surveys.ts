@@ -10,6 +10,7 @@ type SurveyRow = {
   contact_value: string;
   description: string;
   requirements: string[];
+  preferred_requirements: string[];
   has_reward: boolean | null;
   reward_detail: string | null;
   estimated_minutes: number | null;
@@ -26,6 +27,7 @@ function toSurvey(row: SurveyRow): Survey {
     contactValue: row.contact_value,
     description: row.description ?? "",
     requirements: row.requirements ?? [],
+    preferredRequirements: row.preferred_requirements ?? [],
     hasReward: row.has_reward,
     rewardDetail: row.reward_detail ?? "",
     estimatedMinutes: row.estimated_minutes,
@@ -64,6 +66,7 @@ export async function createSurvey(
     | "contactValue"
     | "description"
     | "requirements"
+    | "preferredRequirements"
     | "hasReward"
     | "rewardDetail"
     | "estimatedMinutes"
@@ -77,6 +80,7 @@ export async function createSurvey(
     p_contact_value: survey.contactValue,
     p_description: survey.description,
     p_requirements: survey.requirements,
+    p_preferred_requirements: survey.preferredRequirements,
     p_has_reward: survey.hasReward,
     p_reward_detail: survey.rewardDetail,
     p_estimated_minutes: survey.estimatedMinutes,

@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { RequirementFields } from "@/components/forms/requirement-fields";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -66,6 +67,7 @@ const initialSurvey: Survey = {
   contactValue: "",
   description: "",
   requirements: [""],
+  preferredRequirements: [""],
   hasReward: null,
   rewardDetail: "",
   estimatedMinutes: null,
@@ -141,17 +143,6 @@ export function SurveyForm() {
   const [errors, setErrors] = useState<SurveyErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const requirementInputRefs = useRef<Array<HTMLInputElement | null>>([]);
-  const pendingFocusRequirementIndex = useRef<number | null>(null);
-
-  useEffect(() => {
-    const index = pendingFocusRequirementIndex.current;
-    if (index === null) return;
-
-    requirementInputRefs.current[index]?.focus();
-    pendingFocusRequirementIndex.current = null;
-  }, [survey.requirements.length]);
-
   const contactField = CONTACT_FIELD[survey.contactType];
 
   function changeContactType(contactType: ContactType) {
@@ -168,51 +159,6 @@ export function SurveyForm() {
       rewardDetail: hasReward ? survey.rewardDetail : "",
     });
     setErrors((prev) => ({ ...prev, hasReward: undefined }));
-  }
-
-  function addRequirement() {
-    pendingFocusRequirementIndex.current = survey.requirements.length;
-    setSurvey({ ...survey, requirements: [...survey.requirements, ""] });
-  }
-
-  function updateRequirement(index: number, value: string) {
-    setSurvey({
-      ...survey,
-      requirements: survey.requirements.map((r, i) =>
-        i === index ? value : r,
-      ),
-    });
-  }
-
-  function removeRequirement(index: number) {
-    setSurvey({
-      ...survey,
-      requirements: survey.requirements.filter((_, i) => i !== index),
-    });
-  }
-
-  function handleRequirementKeyDown(
-    event: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
-  ) {
-    if (
-      event.nativeEvent.isComposing ||
-      (event.key !== "Enter" && event.key !== "NumpadEnter")
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-
-    if (!survey.requirements[index].trim()) return;
-
-    const nextInput = requirementInputRefs.current[index + 1];
-    if (nextInput) {
-      nextInput.focus();
-      return;
-    }
-
-    addRequirement();
   }
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -240,6 +186,9 @@ export function SurveyForm() {
         rewardDetail: survey.rewardDetail.trim(),
         estimatedMinutes: parseEstimatedMinutes(estimatedMinutesInput),
         requirements: trimmedRequirements,
+        preferredRequirements: survey.preferredRequirements
+          .map((r) => r.trim())
+          .filter((r) => r !== ""),
       });
       setSurvey(initialSurvey);
       setEstimatedMinutesInput("");
@@ -418,49 +367,24 @@ export function SurveyForm() {
             </FieldDescription>
           </Field>
 
-          <Field>
-            <FieldLabel>募集要項（応募条件）</FieldLabel>
-            <div className="flex flex-col gap-2">
-              {survey.requirements.map((requirement, index) => (
-                <div key={index} className="flex gap-2">
-                  <Input
-                    ref={(element) => {
-                      requirementInputRefs.current[index] = element;
-                    }}
-                    type="text"
-                    placeholder="例）大学生であること"
-                    value={requirement}
-                    onChange={(e) => updateRequirement(index, e.target.value)}
-                    onKeyDown={(event) =>
-                      handleRequirementKeyDown(event, index)
-                    }
-                  />
-                  {survey.requirements.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeRequirement(index)}
-                    >
-                      削除
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="self-start"
-              onClick={addRequirement}
-            >
-              ＋ 条件を追加
-            </Button>
-            <FieldDescription>
-              条件を入力してEnterキーを押すと、次の入力欄を追加できます
-            </FieldDescription>
-          </Field>
+          <RequirementFields
+            id="survey-requirements"
+            label="必須条件"
+            description="参加に必要な条件です。一覧には先頭3件を表示し、残りはポップアップで確認できます。条件がなければ空欄にしてください。"
+            placeholder="例）大学生であること"
+            values={survey.requirements}
+            onChange={(requirements) => setSurvey({ ...survey, requirements })}
+          />
+          <RequirementFields
+            id="survey-preferred-requirements"
+            label="歓迎条件"
+            description="満たしていなくても参加できる条件です。条件がなければ空欄にしてください。"
+            placeholder="例）留学経験がある方歓迎"
+            values={survey.preferredRequirements}
+            onChange={(preferredRequirements) =>
+              setSurvey({ ...survey, preferredRequirements })
+            }
+          />
 
           {submitError && (
             <p className="text-destructive text-sm">{submitError}</p>
