@@ -28,6 +28,7 @@ const SURVEYS = [
     p_reward_detail: "図書カード500円",
     p_estimated_minutes: 5,
     p_requirements: ["20歳以上であること"],
+    p_preferred_requirements: ["写真や動画の投稿経験がある方歓迎"],
   },
   {
     p_title: "新商品パッケージデザインに関するアンケート",

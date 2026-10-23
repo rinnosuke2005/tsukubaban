@@ -9,6 +9,7 @@ export type Survey = {
   contactValue: string;
   description: string;
   requirements: string[];
+  preferredRequirements: string[];
   hasReward: boolean | null;
   rewardDetail: string;
   estimatedMinutes: number | null;
