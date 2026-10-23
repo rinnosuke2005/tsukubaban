@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
+import { SurveyFilterBar } from "@/components/survey-filter-bar";
 import {
   Card,
   CardContent,
@@ -10,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useSurveyFilters } from "@/hooks/use-survey-filters";
 import { useSurveys } from "@/hooks/use-surveys";
 import {
   Dialog,
@@ -18,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { matchesFilters } from "@/lib/survey-filters";
 import { CONTACT_TYPE_LABELS, formatReward } from "@/lib/types/survey";
 
 const REQUIREMENTS_PREVIEW_COUNT = 3;
@@ -54,137 +57,24 @@ function RequirementItem({
 export default function Home() {
   const { surveys, isLoading, error } = useSurveys();
 
-  const [contactFilter, setContactFilter] = useState<
-    "all" | "url" | "email" | "phone"
-  >("all");
+  const { filters, setFilter, clearFilters, isDefault } = useSurveyFilters();
 
-  const [rewardFilter, setRewardFilter] = useState<
-    "all" | "yes" | "no"
-  >("all");
-
-  const [durationFilter, setDurationFilter] = useState<
-    "all" | "5-or-less" | "5-10" | "10-30" | "30-60" | "60-plus"
-  >("all");
-
-  const clearFilters = () => {
-    setContactFilter("all");
-    setRewardFilter("all");
-    setDurationFilter("all");
-  };
-
-  const filteredSurveys = useMemo(() => {
-    return surveys.filter((survey) => {
-      const matchesContact =
-        contactFilter === "all" ||
-        survey.contactType === contactFilter;
-
-      const matchesReward =
-        rewardFilter === "all" ||
-        (rewardFilter === "yes" && survey.hasReward === true) ||
-        (rewardFilter === "no" && survey.hasReward === false);
-
-      const matchesDuration =
-        durationFilter === "all" ||
-        (survey.estimatedMinutes !== null &&
-          (durationFilter === "5-or-less"
-            ? survey.estimatedMinutes <= 5
-            : durationFilter === "5-10"
-              ? survey.estimatedMinutes > 5 &&
-                survey.estimatedMinutes <= 10
-              : durationFilter === "10-30"
-                ? survey.estimatedMinutes > 10 &&
-                  survey.estimatedMinutes <= 30
-                : durationFilter === "30-60"
-                  ? survey.estimatedMinutes > 30 &&
-                    survey.estimatedMinutes < 60
-                  : survey.estimatedMinutes >= 60));
-
-      return matchesContact && matchesReward && matchesDuration;
-    });
-  }, [surveys, contactFilter, rewardFilter, durationFilter]);
+  const filteredSurveys = useMemo(
+    () => surveys.filter((survey) => matchesFilters(survey, filters)),
+    [surveys, filters],
+  );
 
   return (
     <div className="text-foreground min-h-screen bg-white">
       <Header />
 
       <main className="px-4 py-6 sm:px-8 lg:px-30">
-        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">回答方法</span>
-            <select
-              value={contactFilter}
-              onChange={(e) =>
-                setContactFilter(
-                  e.target.value as "all" | "url" | "email" | "phone",
-                )
-              }
-              className="border-input rounded-md border bg-white px-3 py-2"
-            >
-              <option value="all">すべて</option>
-              <option value="url">Web回答</option>
-              <option value="email">メール回答</option>
-              <option value="phone">電話回答</option>
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">謝礼</span>
-            <select
-              value={rewardFilter}
-              onChange={(e) =>
-                setRewardFilter(
-                  e.target.value as "all" | "yes" | "no",
-                )
-              }
-              className="border-input rounded-md border bg-white px-3 py-2"
-            >
-              <option value="all">すべて</option>
-              <option value="yes">あり</option>
-              <option value="no">なし</option>
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">所要時間</span>
-            <select
-              value={durationFilter}
-              onChange={(e) =>
-                setDurationFilter(
-                  e.target.value as
-                    | "all"
-                    | "5-or-less"
-                    | "5-10"
-                    | "10-30"
-                    | "30-60"
-                    | "60-plus",
-                )
-              }
-              className="border-input rounded-md border bg-white px-3 py-2"
-            >
-              <option value="all">すべて</option>
-              <option value="5-or-less">5分以下</option>
-              <option value="5-10">5〜10分</option>
-              <option value="10-30">10〜30分</option>
-              <option value="30-60">30〜60分</option>
-              <option value="60-plus">60分以上</option>
-            </select>
-          </label>
-        </div>
-
-        <div className="mb-6 flex justify-end">
-          <button
-            type="button"
-            onClick={clearFilters}
-            disabled={
-              contactFilter === "all" &&
-              rewardFilter === "all" &&
-              durationFilter === "all"
-            }
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            条件をクリア
-          </button>
-        </div>
+        <SurveyFilterBar
+          filters={filters}
+          setFilter={setFilter}
+          clearFilters={clearFilters}
+          isDefault={isDefault}
+        />
 
         {isLoading ? (
           <p className="text-muted-foreground text-base">読み込み中...</p>
