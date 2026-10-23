@@ -30,7 +30,7 @@ function RequirementItem({
   preview?: boolean;
 }) {
   return (
-    <li className="text-foreground flex items-start gap-2 rounded-md bg-white px-2 py-1.5 text-sm break-words shadow-sm">
+    <li className="text-foreground flex items-start gap-2 rounded-md bg-white px-2 py-1.5 text-base break-words shadow-sm">
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -42,9 +42,8 @@ function RequirementItem({
         <path d="m8 12 3 3 5-6" />
       </svg>
       <span
-        className={
-          preview ? "line-clamp-1 min-w-0" : "min-w-0 whitespace-pre-wrap"
-        }
+        className={preview ? "min-w-0 truncate" : "min-w-0 whitespace-pre-wrap"}
+        title={preview ? requirement : undefined}
       >
         {requirement}
       </span>
@@ -188,30 +187,31 @@ export default function Home() {
         </div>
 
         {isLoading ? (
-          <p className="text-muted-foreground text-sm">読み込み中...</p>
+          <p className="text-muted-foreground text-base">読み込み中...</p>
         ) : error ? (
-          <p className="text-destructive text-sm">{error}</p>
+          <p className="text-destructive text-base">{error}</p>
         ) : surveys.length === 0 ? (
-          <p className="text-muted-foreground text-sm">まだ募集はありません</p>
+          <p className="text-muted-foreground text-base">
+            まだ募集はありません
+          </p>
         ) : filteredSurveys.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-base">
             条件に一致する募集はありません
           </p>
         ) : (
           <ul className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {filteredSurveys.map((survey) => {
+              const reward = formatReward(survey);
               const previewRequirements = survey.requirements.slice(
                 0,
                 REQUIREMENTS_PREVIEW_COUNT,
               );
 
-              const reward = formatReward(survey);
-
               return (
                 <li key={survey.id}>
-                  <Card className="group relative h-[26rem] transition-all duration-200 hover:-translate-y-1 hover:border-purple-300 hover:shadow-lg">
+                  <Card className="group relative h-full min-h-[26rem] transition-all duration-200 hover:-translate-y-1 hover:border-purple-300 hover:shadow-lg">
                     <CardHeader>
-                      <CardTitle className="line-clamp-2 min-w-0 text-lg font-bold break-words transition-colors group-hover:text-purple-700">
+                      <CardTitle className="line-clamp-2 min-w-0 text-xl font-bold break-words transition-colors group-hover:text-purple-700">
                         <Link
                           href={`/surveys/${survey.id}`}
                           className="focus-visible:after:ring-ring/50 cursor-pointer outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-3"
@@ -219,7 +219,7 @@ export default function Home() {
                           {survey.title}
                         </Link>
                       </CardTitle>
-                      <CardDescription className="mt-1 flex min-w-0 flex-col gap-1">
+                      <CardDescription className="mt-1 flex min-w-0 flex-col gap-1 text-base">
                         <span className="text-foreground/70 flex min-w-0 items-center gap-1.5 truncate">
                           <svg
                             viewBox="0 0 24 24"
@@ -233,7 +233,7 @@ export default function Home() {
                           </svg>
                           {survey.recruiterName}
                         </span>
-                        <span className="flex min-w-0 items-center gap-1.5 truncate text-xs">
+                        <span className="flex min-w-0 items-center gap-1.5 truncate text-sm">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -247,7 +247,7 @@ export default function Home() {
                           {survey.affiliation}
                         </span>
                         {reward && (
-                          <span className="flex min-w-0 items-center gap-1.5 truncate text-xs">
+                          <span className="flex min-w-0 items-center gap-1.5 truncate text-sm">
                             <svg
                               viewBox="0 0 24 24"
                               fill="none"
@@ -262,7 +262,7 @@ export default function Home() {
                           </span>
                         )}
                         {survey.estimatedMinutes !== null && (
-                          <span className="flex min-w-0 items-center gap-1.5 truncate text-xs">
+                          <span className="flex min-w-0 items-center gap-1.5 truncate text-sm">
                             <svg
                               viewBox="0 0 24 24"
                               fill="none"
@@ -278,16 +278,16 @@ export default function Home() {
                         )}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="-mb-(--card-spacing) flex min-h-0 flex-1 flex-col">
-                      <span className="mb-3 w-fit rounded-md bg-purple-50 px-2.5 py-1 text-sm text-purple-700">
+                    <CardContent className="-mb-(--card-spacing) flex flex-1 flex-col">
+                      <span className="mb-3 w-fit rounded-md bg-purple-50 px-2.5 py-1 text-base text-purple-700">
                         {CONTACT_TYPE_LABELS[survey.contactType]}
                       </span>
-                      <div className="-mx-(--card-spacing) mt-auto flex min-h-0 flex-col gap-2 border-t border-gray-200 bg-gray-100 px-(--card-spacing) py-2.5">
-                        <p className="text-foreground/70 shrink-0 text-xs font-semibold tracking-wide">
-                          応募条件
+                      <div className="-mx-(--card-spacing) mt-auto flex h-56 shrink-0 flex-col gap-2 border-t border-gray-200 bg-gray-100 px-(--card-spacing) py-2.5">
+                        <p className="text-foreground/70 shrink-0 text-sm font-semibold tracking-wide">
+                          必須条件
                         </p>
-                        {previewRequirements.length > 0 ? (
-                          <ul className="flex h-32 shrink-0 flex-col gap-2 overflow-hidden">
+                        {survey.requirements.length > 0 ? (
+                          <ul className="flex min-w-0 shrink-0 flex-col gap-2">
                             {previewRequirements.map((requirement, i) => (
                               <RequirementItem
                                 key={i}
@@ -297,31 +297,33 @@ export default function Home() {
                             ))}
                           </ul>
                         ) : (
-                          <p className="text-foreground/50 h-32 shrink-0 text-xs">
-                            なし
-                          </p>
+                          <p className="text-foreground/50 text-sm">なし</p>
                         )}
-                        <div className="h-4 shrink-0">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <button
-                                type="button"
-                                aria-label={`${survey.title}の応募条件をすべて見る`}
-                                className="text-foreground/60 focus-visible:ring-ring/50 relative z-10 cursor-pointer rounded-sm text-xs font-medium transition-colors outline-none group-hover:text-purple-700 group-hover:underline hover:underline focus-visible:ring-3"
+                        <div className="mt-auto flex flex-col items-start gap-1">
+                          {survey.requirements.length >
+                            REQUIREMENTS_PREVIEW_COUNT && (
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <button
+                                  type="button"
+                                  aria-label={`${survey.title}の必須条件をすべて見る`}
+                                  className="text-foreground/60 focus-visible:ring-ring/50 relative z-10 w-fit cursor-pointer rounded-sm text-sm font-medium transition-colors outline-none hover:text-purple-700 hover:underline focus-visible:ring-3"
+                                >
+                                  必須条件をすべて見る（残り
+                                  {survey.requirements.length -
+                                    REQUIREMENTS_PREVIEW_COUNT}
+                                  件） &gt;
+                                </button>
+                              </DialogTrigger>
+                              <DialogContent
+                                className="max-h-[85dvh] w-[calc(100%-2rem)] overflow-y-auto"
+                                aria-describedby={undefined}
                               >
-                                詳細を見る &gt;
-                              </button>
-                            </DialogTrigger>
-                            <DialogContent
-                              className="max-h-[85dvh] w-[calc(100%-2rem)] overflow-y-auto"
-                              aria-describedby={undefined}
-                            >
-                              <DialogHeader className="min-w-0 pr-6">
-                                <DialogTitle className="leading-snug break-words">
-                                  {survey.title}の応募条件
-                                </DialogTitle>
-                              </DialogHeader>
-                              {survey.requirements.length > 0 ? (
+                                <DialogHeader className="min-w-0 pr-6">
+                                  <DialogTitle className="leading-snug break-words">
+                                    {survey.title}の必須条件
+                                  </DialogTitle>
+                                </DialogHeader>
                                 <ul className="flex min-w-0 flex-col gap-2">
                                   {survey.requirements.map((requirement, i) => (
                                     <RequirementItem
@@ -330,13 +332,9 @@ export default function Home() {
                                     />
                                   ))}
                                 </ul>
-                              ) : (
-                                <p className="text-foreground/50 text-sm">
-                                  なし
-                                </p>
-                              )}
-                            </DialogContent>
-                          </Dialog>
+                              </DialogContent>
+                            </Dialog>
+                          )}
                         </div>
                       </div>
                     </CardContent>

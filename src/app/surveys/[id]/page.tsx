@@ -133,32 +133,39 @@ function SurveyDetail({ survey }: { survey: Survey }) {
             ))}
           </dl>
 
-          <section className="mt-10">
-            <SectionHeading>応募条件</SectionHeading>
-            {survey.requirements.length > 0 ? (
-              <ul className="border-t border-gray-200">
-                {survey.requirements.map((requirement, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2.5 border-b border-gray-200 py-2.5 break-words"
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={3}
-                      className="mt-1.5 size-3.5 shrink-0 text-purple-500"
+          {[
+            { label: "必須条件", requirements: survey.requirements },
+            { label: "歓迎条件", requirements: survey.preferredRequirements },
+          ].map(({ label, requirements }) => (
+            <section key={label} className="mt-10">
+              <SectionHeading>{label}</SectionHeading>
+              {requirements.length > 0 ? (
+                <ul className="border-t border-gray-200">
+                  {requirements.map((requirement, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2.5 border-b border-gray-200 py-2.5 break-words"
                     >
-                      <path d="m5 12 5 5 9-10" />
-                    </svg>
-                    <span>{requirement}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-foreground/50 text-sm">なし</p>
-            )}
-          </section>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                        className="mt-1.5 size-3.5 shrink-0 text-purple-500"
+                      >
+                        <path d="m5 12 5 5 9-10" />
+                      </svg>
+                      <span className="min-w-0 whitespace-pre-wrap">
+                        {requirement}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-foreground/50 text-sm">なし</p>
+              )}
+            </section>
+          ))}
 
           {survey.description && (
             <section className="mt-10">
