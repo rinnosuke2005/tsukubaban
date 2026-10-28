@@ -1,8 +1,12 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   DEFAULT_SURVEY_FILTERS,
+  isDefaultFilters,
+  parseSurveyFilters,
+  toSearchParams,
   type SurveyFilters,
 } from "@/lib/survey-filters";
 
@@ -16,23 +20,43 @@ type UseSurveyFiltersResult = {
   isDefault: boolean;
 };
 
+// 条件は URL クエリに持たせ、リロード・共有・戻る/進むで保持されるようにする
 export function useSurveyFilters(): UseSurveyFiltersResult {
-  const [filters, setFilters] = useState<SurveyFilters>(DEFAULT_SURVEY_FILTERS);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const filters = useMemo(
+    () => parseSurveyFilters(searchParams),
+    [searchParams],
+  );
+
+  // push だと条件変更のたびに履歴が積まれ、戻るで前のページに戻れなくなるため replace
+  const replaceFilters = useCallback(
+    (next: SurveyFilters) => {
+      const query = toSearchParams(next).toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    },
+    [router, pathname],
+  );
 
   const setFilter = useCallback(
     <K extends keyof SurveyFilters>(key: K, value: SurveyFilters[K]) => {
-      setFilters((prev) => ({ ...prev, [key]: value }));
+      replaceFilters({ ...filters, [key]: value });
     },
-    [],
+    [filters, replaceFilters],
   );
 
   const clearFilters = useCallback(() => {
-    setFilters(DEFAULT_SURVEY_FILTERS);
-  }, []);
+    replaceFilters(DEFAULT_SURVEY_FILTERS);
+  }, [replaceFilters]);
 
-  const isDefault = (
-    Object.keys(DEFAULT_SURVEY_FILTERS) as (keyof SurveyFilters)[]
-  ).every((key) => filters[key] === DEFAULT_SURVEY_FILTERS[key]);
-
-  return { filters, setFilter, clearFilters, isDefault };
+  return {
+    filters,
+    setFilter,
+    clearFilters,
+    isDefault: isDefaultFilters(filters),
+  };
 }

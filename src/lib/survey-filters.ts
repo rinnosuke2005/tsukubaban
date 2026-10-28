@@ -1,4 +1,8 @@
-import type { ContactType, Survey } from "@/lib/types/survey";
+import {
+  CONTACT_TYPE_LABELS,
+  type ContactType,
+  type Survey,
+} from "@/lib/types/survey";
 
 // 所要時間はフォームで整数（分）に制限しているため、境界は両端を含む整数で持つ
 export const DURATION_RANGES = {
@@ -25,6 +29,54 @@ export const DEFAULT_SURVEY_FILTERS: SurveyFilters = {
   reward: "all",
   duration: "all",
 };
+
+const FILTER_KEYS = Object.keys(
+  DEFAULT_SURVEY_FILTERS,
+) as (keyof SurveyFilters)[];
+
+function isOneOf<T extends string>(
+  value: string | null,
+  candidates: readonly T[],
+): value is T {
+  return value !== null && (candidates as readonly string[]).includes(value);
+}
+
+// URL は手入力・古いリンクで任意の値が来るため、想定外の値は "all" として扱う
+export function parseSurveyFilters(
+  params: Pick<URLSearchParams, "get">,
+): SurveyFilters {
+  const contactType = params.get("contactType");
+  const reward = params.get("reward");
+  const duration = params.get("duration");
+
+  return {
+    contactType: isOneOf(
+      contactType,
+      Object.keys(CONTACT_TYPE_LABELS) as ContactType[],
+    )
+      ? contactType
+      : "all",
+    reward: isOneOf(reward, ["yes", "no"] as const) ? reward : "all",
+    duration: isOneOf(duration, Object.keys(DURATION_RANGES) as DurationRange[])
+      ? duration
+      : "all",
+  };
+}
+
+// "all" の条件は URL に出さず、未指定の URL と同じ見た目にする
+export function toSearchParams(filters: SurveyFilters): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const key of FILTER_KEYS) {
+    if (filters[key] !== "all") params.set(key, filters[key]);
+  }
+  return params;
+}
+
+export function isDefaultFilters(filters: SurveyFilters): boolean {
+  return FILTER_KEYS.every(
+    (key) => filters[key] === DEFAULT_SURVEY_FILTERS[key],
+  );
+}
 
 // hasReward / estimatedMinutes が null（未設定）の募集は、その条件を指定したときは除外する
 export function matchesFilters(
