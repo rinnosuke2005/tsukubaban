@@ -38,28 +38,35 @@ function FilterChips<V extends string>({
   onChange: (value: V) => void;
 }) {
   return (
-    <fieldset>
+    // fieldset は既定で min-width: min-content のため、min-w-0 がないと横スクロールせず幅が広がる
+    <fieldset className="min-w-0">
       {/* legend は flex で横並びにできないため、読み上げ用に残して見た目のラベルは span で出す */}
       <legend className="sr-only">{label}</legend>
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span aria-hidden className="mr-1 text-xs text-gray-500">
+      <div className="flex items-center gap-1.5">
+        <span
+          aria-hidden
+          className="w-14 shrink-0 text-xs text-gray-500 sm:mr-1 sm:w-auto"
+        >
           {label}
         </span>
-        {options.map((option) => (
-          <label key={option.value}>
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
-              className="peer sr-only"
-            />
-            <span className="peer-focus-visible:ring-ring/50 inline-block cursor-pointer rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs text-gray-700 transition peer-checked:border-purple-600 peer-checked:bg-purple-600 peer-checked:text-white peer-focus-visible:ring-3 hover:bg-gray-100 peer-checked:hover:bg-purple-700">
-              {option.label}
-            </span>
-          </label>
-        ))}
+        {/* スマホでは折り返すと行ごとに崩れるため 1 行に固定して横スクロールにし、右端をフェードさせて続きがあることを示す */}
+        <div className="flex min-w-0 [scrollbar-width:none] gap-1.5 overflow-x-auto [mask-image:linear-gradient(to_right,black_85%,transparent)] py-1 sm:flex-wrap sm:overflow-visible sm:[mask-image:none]">
+          {options.map((option) => (
+            <label key={option.value} className="shrink-0">
+              <input
+                type="radio"
+                name={name}
+                value={option.value}
+                checked={value === option.value}
+                onChange={() => onChange(option.value)}
+                className="peer sr-only"
+              />
+              <span className="peer-focus-visible:ring-ring/50 inline-block cursor-pointer rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs whitespace-nowrap text-gray-700 transition peer-checked:border-purple-600 peer-checked:bg-purple-600 peer-checked:text-white peer-focus-visible:ring-3 hover:bg-gray-100 peer-checked:hover:bg-purple-700">
+                {option.label}
+              </span>
+            </label>
+          ))}
+        </div>
       </div>
     </fieldset>
   );
@@ -83,7 +90,7 @@ export function SurveyFilterBar({
 }: SurveyFilterBarProps) {
   return (
     // 主役はアンケート一覧なので、絞り込みは 1〜2 行の帯に収めて一覧を上に寄せる
-    <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-gray-200 pb-4">
+    <div className="mb-6 flex flex-col border-b border-gray-200 pb-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-1">
       <FilterChips
         label="回答方法"
         name="contactType"
@@ -109,7 +116,7 @@ export function SurveyFilterBar({
         <button
           type="button"
           onClick={clearFilters}
-          className="ml-auto cursor-pointer text-xs text-gray-500 underline-offset-2 transition hover:text-purple-700 hover:underline"
+          className="cursor-pointer self-end text-xs text-gray-500 underline-offset-2 transition hover:text-purple-700 hover:underline sm:ml-auto sm:self-auto"
         >
           条件をクリア
         </button>
