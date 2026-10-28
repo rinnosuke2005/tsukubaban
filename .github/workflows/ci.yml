@@ -3,7 +3,6 @@ name: CI
 on:
   push:
     branches:
-      - develop
       - main
   pull_request:
 
@@ -28,3 +27,16 @@ jobs:
 
       - name: Check formatting with Prettier
         run: npm run format:check
+
+  # 本番に push する前に、空の DB へ全マイグレーションが当たることを runner 内で確認する
+  migration-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v3
+
+      - name: Apply all migrations to a fresh database
+        run: supabase db start
