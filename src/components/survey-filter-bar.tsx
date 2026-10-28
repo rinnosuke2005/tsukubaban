@@ -49,8 +49,8 @@ function FilterChips<V extends string>({
         >
           {label}
         </span>
-        {/* スマホでは折り返すと行ごとに崩れるため 1 行に固定して横スクロールにし、右端をフェードさせて続きがあることを示す */}
-        <div className="flex min-w-0 [scrollbar-width:none] gap-1.5 overflow-x-auto [mask-image:linear-gradient(to_right,black_85%,transparent)] py-1 sm:flex-wrap sm:overflow-visible sm:[mask-image:none]">
+        {/* スマホでは折り返すと行ごとに崩れるため 1 行に固定して横スクロールにする */}
+        <div className="flex min-w-0 [scrollbar-width:none] gap-1.5 overflow-x-auto py-1 sm:flex-wrap sm:overflow-visible">
           {options.map((option) => (
             <label key={option.value} className="shrink-0">
               <input
