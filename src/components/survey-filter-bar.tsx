@@ -39,8 +39,12 @@ function FilterChips<V extends string>({
 }) {
   return (
     <fieldset>
-      <legend className="mb-2 text-sm font-medium">{label}</legend>
-      <div className="flex flex-wrap gap-2">
+      {/* legend は flex で横並びにできないため、読み上げ用に残して見た目のラベルは span で出す */}
+      <legend className="sr-only">{label}</legend>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span aria-hidden className="mr-1 text-xs text-gray-500">
+          {label}
+        </span>
         {options.map((option) => (
           <label key={option.value}>
             <input
@@ -51,7 +55,7 @@ function FilterChips<V extends string>({
               onChange={() => onChange(option.value)}
               className="peer sr-only"
             />
-            <span className="peer-focus-visible:ring-ring/50 inline-block cursor-pointer rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 transition peer-checked:border-purple-600 peer-checked:bg-purple-600 peer-checked:text-white peer-focus-visible:ring-3 hover:bg-gray-100 peer-checked:hover:bg-purple-700">
+            <span className="peer-focus-visible:ring-ring/50 inline-block cursor-pointer rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs text-gray-700 transition peer-checked:border-purple-600 peer-checked:bg-purple-600 peer-checked:text-white peer-focus-visible:ring-3 hover:bg-gray-100 peer-checked:hover:bg-purple-700">
               {option.label}
             </span>
           </label>
@@ -78,40 +82,38 @@ export function SurveyFilterBar({
   isDefault,
 }: SurveyFilterBarProps) {
   return (
-    <div className="mb-6 flex flex-col gap-3">
-      <div className="flex flex-col gap-4">
-        <FilterChips
-          label="回答方法"
-          name="contactType"
-          value={filters.contactType}
-          options={CONTACT_TYPE_OPTIONS}
-          onChange={(value) => setFilter("contactType", value)}
-        />
-        <FilterChips
-          label="謝礼"
-          name="reward"
-          value={filters.reward}
-          options={REWARD_OPTIONS}
-          onChange={(value) => setFilter("reward", value)}
-        />
-        <FilterChips
-          label="所要時間"
-          name="duration"
-          value={filters.duration}
-          options={DURATION_OPTIONS}
-          onChange={(value) => setFilter("duration", value)}
-        />
-      </div>
-      <div className="flex justify-end">
+    // 主役はアンケート一覧なので、絞り込みは 1〜2 行の帯に収めて一覧を上に寄せる
+    <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-gray-200 pb-4">
+      <FilterChips
+        label="回答方法"
+        name="contactType"
+        value={filters.contactType}
+        options={CONTACT_TYPE_OPTIONS}
+        onChange={(value) => setFilter("contactType", value)}
+      />
+      <FilterChips
+        label="謝礼"
+        name="reward"
+        value={filters.reward}
+        options={REWARD_OPTIONS}
+        onChange={(value) => setFilter("reward", value)}
+      />
+      <FilterChips
+        label="所要時間"
+        name="duration"
+        value={filters.duration}
+        options={DURATION_OPTIONS}
+        onChange={(value) => setFilter("duration", value)}
+      />
+      {!isDefault && (
         <button
           type="button"
           onClick={clearFilters}
-          disabled={isDefault}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="ml-auto cursor-pointer text-xs text-gray-500 underline-offset-2 transition hover:text-purple-700 hover:underline"
         >
           条件をクリア
         </button>
-      </div>
+      )}
     </div>
   );
 }
