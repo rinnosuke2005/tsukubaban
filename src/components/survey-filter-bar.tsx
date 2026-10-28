@@ -1,4 +1,4 @@
-import { DURATION_RANGES, type SurveyFilters } from "@/lib/survey-filters";
+import { DURATION_LIMITS, type SurveyFilters } from "@/lib/survey-filters";
 import { CONTACT_TYPE_LABELS } from "@/lib/types/survey";
 
 type Option<V extends string> = { value: V; label: string };
@@ -17,13 +17,10 @@ const REWARD_OPTIONS: Option<SurveyFilters["reward"]>[] = [
   { value: "no", label: "なし" },
 ];
 
-const DURATION_OPTIONS = [
+const DURATION_OPTIONS: Option<SurveyFilters["duration"]>[] = [
   { value: "all", label: "すべて" },
-  ...Object.entries(DURATION_RANGES).map(([value, { label }]) => ({
-    value,
-    label,
-  })),
-] as Option<SurveyFilters["duration"]>[];
+  ...DURATION_LIMITS.map((value) => ({ value, label: `${value}分以下` })),
+];
 
 // 選択肢が少ないため、プルダウンに隠さず全件を並べて 1 クリックで切り替えられるようにする。
 // 中身は radio にして、矢印キー操作と読み上げはブラウザ標準に任せる

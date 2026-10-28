@@ -4,24 +4,15 @@ import {
   type Survey,
 } from "@/lib/types/survey";
 
-// 所要時間はフォームで整数（分）に制限しているため、境界は両端を含む整数で持つ
-export const DURATION_RANGES = {
-  "lte-5": { label: "5分以下", min: null, max: 5 },
-  "6-10": { label: "6〜10分", min: 6, max: 10 },
-  "11-30": { label: "11〜30分", min: 11, max: 30 },
-  "31-59": { label: "31〜59分", min: 31, max: 59 },
-  "gte-60": { label: "60分以上", min: 60, max: null },
-} as const satisfies Record<
-  string,
-  { label: string; min: number | null; max: number | null }
->;
+// 回答者は「手持ちの時間で終わるか」で探すため、範囲ではなく上限（N分以下）で絞り込む
+export const DURATION_LIMITS = ["5", "10", "15", "30"] as const;
 
-export type DurationRange = keyof typeof DURATION_RANGES;
+export type DurationLimit = (typeof DURATION_LIMITS)[number];
 
 export type SurveyFilters = {
   contactType: "all" | ContactType;
   reward: "all" | "yes" | "no";
-  duration: "all" | DurationRange;
+  duration: "all" | DurationLimit;
 };
 
 export const DEFAULT_SURVEY_FILTERS: SurveyFilters = {
@@ -57,9 +48,7 @@ export function parseSurveyFilters(
       ? contactType
       : "all",
     reward: isOneOf(reward, ["yes", "no"] as const) ? reward : "all",
-    duration: isOneOf(duration, Object.keys(DURATION_RANGES) as DurationRange[])
-      ? duration
-      : "all",
+    duration: isOneOf(duration, DURATION_LIMITS) ? duration : "all",
   };
 }
 
@@ -98,9 +87,7 @@ export function matchesFilters(
   if (filters.duration !== "all") {
     const minutes = survey.estimatedMinutes;
     if (minutes === null) return false;
-    const { min, max } = DURATION_RANGES[filters.duration];
-    if (min !== null && minutes < min) return false;
-    if (max !== null && minutes > max) return false;
+    if (minutes > Number(filters.duration)) return false;
   }
 
   return true;
