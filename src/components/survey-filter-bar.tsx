@@ -25,35 +25,42 @@ const DURATION_OPTIONS = [
   })),
 ] as Option<SurveyFilters["duration"]>[];
 
-function FilterSelect<V extends string>({
+// 選択肢が少ないため、プルダウンに隠さず全件を並べて 1 クリックで切り替えられるようにする。
+// 中身は radio にして、矢印キー操作と読み上げはブラウザ標準に任せる
+function FilterChips<V extends string>({
   label,
+  name,
   value,
   options,
   onChange,
 }: {
   label: string;
+  name: string;
   value: V;
   options: Option<V>[];
   onChange: (value: V) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-sm">
-      <span className="font-medium">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => {
-          const option = options.find((o) => o.value === e.target.value);
-          if (option) onChange(option.value);
-        }}
-        className="border-input rounded-md border bg-white px-3 py-2"
-      >
+    <fieldset>
+      <legend className="mb-2 text-sm font-medium">{label}</legend>
+      <div className="flex flex-wrap gap-2">
         {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
+          <label key={option.value}>
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={value === option.value}
+              onChange={() => onChange(option.value)}
+              className="peer sr-only"
+            />
+            <span className="peer-focus-visible:ring-ring/50 inline-block cursor-pointer rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 transition peer-checked:border-purple-600 peer-checked:bg-purple-600 peer-checked:text-white peer-focus-visible:ring-3 hover:bg-gray-100 peer-checked:hover:bg-purple-700">
+              {option.label}
+            </span>
+          </label>
         ))}
-      </select>
-    </label>
+      </div>
+    </fieldset>
   );
 }
 
@@ -75,21 +82,24 @@ export function SurveyFilterBar({
 }: SurveyFilterBarProps) {
   return (
     <div className="mb-6 flex flex-col gap-3">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <FilterSelect
+      <div className="flex flex-col gap-4">
+        <FilterChips
           label="回答方法"
+          name="contactType"
           value={filters.contactType}
           options={CONTACT_TYPE_OPTIONS}
           onChange={(value) => setFilter("contactType", value)}
         />
-        <FilterSelect
+        <FilterChips
           label="謝礼"
+          name="reward"
           value={filters.reward}
           options={REWARD_OPTIONS}
           onChange={(value) => setFilter("reward", value)}
         />
-        <FilterSelect
+        <FilterChips
           label="所要時間"
+          name="duration"
           value={filters.duration}
           options={DURATION_OPTIONS}
           onChange={(value) => setFilter("duration", value)}
