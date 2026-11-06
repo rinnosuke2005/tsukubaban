@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
-import type { ContactType, Survey } from "@/lib/types/survey";
+import type { AnswerMethod, ContactType, Survey } from "@/lib/types/survey";
 
 type SurveyRow = {
   id: string;
@@ -14,6 +14,9 @@ type SurveyRow = {
   has_reward: boolean | null;
   reward_detail: string | null;
   estimated_minutes: number | null;
+  answer_method: AnswerMethod | null;
+  period_start: string | null;
+  period_end: string | null;
   created_at: string;
 };
 
@@ -31,6 +34,9 @@ function toSurvey(row: SurveyRow): Survey {
     hasReward: row.has_reward,
     rewardDetail: row.reward_detail ?? "",
     estimatedMinutes: row.estimated_minutes,
+    answerMethod: row.answer_method,
+    periodStart: row.period_start,
+    periodEnd: row.period_end,
     createdAt: row.created_at,
   };
 }
@@ -70,6 +76,9 @@ export async function createSurvey(
     | "hasReward"
     | "rewardDetail"
     | "estimatedMinutes"
+    | "answerMethod"
+    | "periodStart"
+    | "periodEnd"
   >,
 ): Promise<Survey> {
   const { data, error } = await supabase.rpc("create_survey", {
@@ -84,6 +93,9 @@ export async function createSurvey(
     p_has_reward: survey.hasReward,
     p_reward_detail: survey.rewardDetail,
     p_estimated_minutes: survey.estimatedMinutes,
+    p_answer_method: survey.answerMethod,
+    p_period_start: survey.periodStart,
+    p_period_end: survey.periodEnd,
   });
 
   if (error) {

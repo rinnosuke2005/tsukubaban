@@ -1,15 +1,15 @@
-import { DURATION_RANGES, type SurveyFilters } from "@/lib/survey-filters";
-import { CONTACT_TYPE_LABELS } from "@/lib/types/survey";
+import type { SurveyFilters } from "@/lib/survey-filters";
+import { ANSWER_METHOD_LABELS } from "@/lib/types/survey";
 
 type Option<V extends string> = { value: V; label: string };
 
-const CONTACT_TYPE_OPTIONS = [
+const ANSWER_METHOD_OPTIONS = [
   { value: "all", label: "すべて" },
-  ...Object.entries(CONTACT_TYPE_LABELS).map(([value, label]) => ({
+  ...Object.entries(ANSWER_METHOD_LABELS).map(([value, label]) => ({
     value,
     label,
   })),
-] as Option<SurveyFilters["contactType"]>[];
+] as Option<SurveyFilters["answerMethod"]>[];
 
 const REWARD_OPTIONS: Option<SurveyFilters["reward"]>[] = [
   { value: "all", label: "すべて" },
@@ -17,13 +17,7 @@ const REWARD_OPTIONS: Option<SurveyFilters["reward"]>[] = [
   { value: "no", label: "なし" },
 ];
 
-const DURATION_OPTIONS = [
-  { value: "all", label: "すべて" },
-  ...Object.entries(DURATION_RANGES).map(([value, { label }]) => ({
-    value,
-    label,
-  })),
-] as Option<SurveyFilters["duration"]>[];
+const controlClass = "border-input rounded-md border bg-white px-3 py-2";
 
 function FilterSelect<V extends string>({
   label,
@@ -45,7 +39,7 @@ function FilterSelect<V extends string>({
           const option = options.find((o) => o.value === e.target.value);
           if (option) onChange(option.value);
         }}
-        className="border-input rounded-md border bg-white px-3 py-2"
+        className={controlClass}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -78,9 +72,9 @@ export function SurveyFilterBar({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <FilterSelect
           label="回答方法"
-          value={filters.contactType}
-          options={CONTACT_TYPE_OPTIONS}
-          onChange={(value) => setFilter("contactType", value)}
+          value={filters.answerMethod}
+          options={ANSWER_METHOD_OPTIONS}
+          onChange={(value) => setFilter("answerMethod", value)}
         />
         <FilterSelect
           label="謝礼"
@@ -88,12 +82,15 @@ export function SurveyFilterBar({
           options={REWARD_OPTIONS}
           onChange={(value) => setFilter("reward", value)}
         />
-        <FilterSelect
-          label="所要時間"
-          value={filters.duration}
-          options={DURATION_OPTIONS}
-          onChange={(value) => setFilter("duration", value)}
-        />
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="font-medium">参加したい日</span>
+          <input
+            type="date"
+            value={filters.date}
+            onChange={(e) => setFilter("date", e.target.value)}
+            className={controlClass}
+          />
+        </label>
       </div>
       <div className="flex justify-end">
         <button

@@ -6,7 +6,8 @@ import { BackLink } from "@/components/back-link";
 import { Header } from "@/components/header";
 import { useSurvey } from "@/hooks/use-survey";
 import {
-  CONTACT_TYPE_LABELS,
+  ANSWER_METHOD_LABELS,
+  formatPeriod,
   formatReward,
   type Survey,
 } from "@/lib/types/survey";
@@ -97,17 +98,20 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function SurveyDetail({ survey }: { survey: Survey }) {
   const postedAt = formatDate(survey.createdAt);
   const reward = formatReward(survey);
+  const period = formatPeriod(survey);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pt-2 pb-28 sm:px-6 md:pb-16">
       <h1 className="text-2xl font-bold break-words md:text-3xl">
         {survey.title}
       </h1>
-      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="rounded bg-gray-100 px-2.5 py-0.5 text-sm font-medium">
-          {CONTACT_TYPE_LABELS[survey.contactType]}
-        </span>
-      </div>
+      {survey.answerMethod && (
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className="rounded bg-gray-100 px-2.5 py-0.5 text-sm font-medium">
+            {ANSWER_METHOD_LABELS[survey.answerMethod]}
+          </span>
+        </div>
+      )}
 
       <div className="mt-6 grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_280px] md:gap-12">
         <main className="min-w-0">
@@ -119,6 +123,7 @@ function SurveyDetail({ survey }: { survey: Survey }) {
               ...(survey.estimatedMinutes !== null
                 ? [["所要時間", `約${survey.estimatedMinutes}分`]]
                 : []),
+              ...(period ? [["実施期間", period]] : []),
               ...(postedAt ? [["投稿日", postedAt]] : []),
             ].map(([label, value]) => (
               <div

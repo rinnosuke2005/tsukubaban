@@ -15,7 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createSurvey } from "@/lib/api/surveys";
 import {
+  ANSWER_METHOD_LABELS,
   CONTACT_TYPE_LABELS,
+  type AnswerMethod,
   type ContactType,
   type Survey,
 } from "@/lib/types/survey";
@@ -30,6 +32,8 @@ const REWARD_OPTIONS = [
 ];
 
 const CONTACT_TYPES: ContactType[] = ["url", "email", "phone"];
+
+const ANSWER_METHODS: AnswerMethod[] = ["online", "in_person"];
 
 const CONTACT_FIELD: Record<
   ContactType,
@@ -71,6 +75,9 @@ const initialSurvey: Survey = {
   hasReward: null,
   rewardDetail: "",
   estimatedMinutes: null,
+  answerMethod: null,
+  periodStart: null,
+  periodEnd: null,
 };
 
 type SurveyErrors = Partial<Record<keyof Survey, string>>;
@@ -124,6 +131,16 @@ function validateSurvey(
   const contactError = validateContact(survey);
   if (contactError) {
     errors.contactValue = contactError;
+  }
+  if (survey.answerMethod === null) {
+    errors.answerMethod = "回答方法を選択してください";
+  }
+  if (
+    survey.periodStart &&
+    survey.periodEnd &&
+    survey.periodStart > survey.periodEnd
+  ) {
+    errors.periodEnd = "終了日は開始日以降の日付にしてください";
   }
   if (survey.hasReward === null) {
     errors.hasReward = "謝礼の有無を選択してください";
@@ -254,9 +271,71 @@ export function SurveyForm() {
             </Field>
           </div>
 
+          <Field data-invalid={!!errors.answerMethod}>
+            <FieldLabel id="survey-answer-method-label">
+              回答方法<span className="text-destructive">*</span>
+            </FieldLabel>
+            <div
+              role="group"
+              aria-labelledby="survey-answer-method-label"
+              className="border-input grid grid-cols-2 overflow-hidden rounded-lg border"
+            >
+              {ANSWER_METHODS.map((method) => (
+                <button
+                  key={method}
+                  type="button"
+                  aria-pressed={survey.answerMethod === method}
+                  onClick={() => {
+                    setSurvey({ ...survey, answerMethod: method });
+                    setErrors((prev) => ({ ...prev, answerMethod: undefined }));
+                  }}
+                  className="text-muted-foreground border-input py-2 text-sm not-first:border-l aria-pressed:bg-purple-50 aria-pressed:font-bold aria-pressed:text-purple-700"
+                >
+                  {ANSWER_METHOD_LABELS[method]}
+                </button>
+              ))}
+            </div>
+            <FieldDescription>
+              Webフォーム・メール・電話はオンライン、会って実施するものは対面を選んでください
+            </FieldDescription>
+            <FieldError>{errors.answerMethod}</FieldError>
+          </Field>
+
+          <Field data-invalid={!!errors.periodEnd}>
+            <FieldLabel id="survey-period-label">実施期間</FieldLabel>
+            <div
+              role="group"
+              aria-labelledby="survey-period-label"
+              className="flex items-center gap-2"
+            >
+              <Input
+                type="date"
+                aria-label="開始日"
+                value={survey.periodStart ?? ""}
+                onChange={(e) =>
+                  setSurvey({ ...survey, periodStart: e.target.value || null })
+                }
+              />
+              <span className="text-muted-foreground">〜</span>
+              <Input
+                type="date"
+                aria-label="終了日"
+                value={survey.periodEnd ?? ""}
+                onChange={(e) =>
+                  setSurvey({ ...survey, periodEnd: e.target.value || null })
+                }
+                aria-invalid={!!errors.periodEnd}
+              />
+            </div>
+            <FieldDescription>
+              日程が決まっている場合に入力してください。片方だけでも構いません
+            </FieldDescription>
+            <FieldError>{errors.periodEnd}</FieldError>
+          </Field>
+
           <Field data-invalid={!!errors.contactValue}>
             <FieldLabel id="survey-contact-type-label">
-              回答方法<span className="text-destructive">*</span>
+              回答先・連絡先<span className="text-destructive">*</span>
             </FieldLabel>
             <div
               role="group"
@@ -355,7 +434,7 @@ export function SurveyForm() {
               id="survey-description"
               maxLength={DESCRIPTION_MAX_LENGTH}
               placeholder={
-                "例）卒業論文の調査として、学習習慣と睡眠時間の関係を調べています。\n回答期間：11月15日まで"
+                "例）卒業論文の調査として、学習習慣と睡眠時間の関係を調べています。"
               }
               value={survey.description}
               onChange={(e) =>

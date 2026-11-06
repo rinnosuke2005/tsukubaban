@@ -21,7 +21,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { matchesFilters } from "@/lib/survey-filters";
-import { CONTACT_TYPE_LABELS, formatReward } from "@/lib/types/survey";
+import {
+  ANSWER_METHOD_LABELS,
+  formatPeriod,
+  formatReward,
+} from "@/lib/types/survey";
 
 const REQUIREMENTS_PREVIEW_COUNT = 3;
 
@@ -92,6 +96,7 @@ export default function Home() {
           <ul className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {filteredSurveys.map((survey) => {
               const reward = formatReward(survey);
+              const period = formatPeriod(survey);
               const previewRequirements = survey.requirements.slice(
                 0,
                 REQUIREMENTS_PREVIEW_COUNT,
@@ -166,12 +171,29 @@ export default function Home() {
                             所要時間：約{survey.estimatedMinutes}分
                           </span>
                         )}
+                        {period && (
+                          <span className="flex min-w-0 items-center gap-1.5 truncate text-sm">
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                              className="size-3.5 shrink-0"
+                            >
+                              <rect x="3" y="5" width="18" height="16" rx="2" />
+                              <path d="M3 10h18M8 3v4M16 3v4" />
+                            </svg>
+                            実施期間：{period}
+                          </span>
+                        )}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="-mb-(--card-spacing) flex flex-1 flex-col">
-                      <span className="mb-3 w-fit rounded-md bg-purple-50 px-2.5 py-1 text-base text-purple-700">
-                        {CONTACT_TYPE_LABELS[survey.contactType]}
-                      </span>
+                      {survey.answerMethod && (
+                        <span className="mb-3 w-fit rounded-md bg-purple-50 px-2.5 py-1 text-base text-purple-700">
+                          {ANSWER_METHOD_LABELS[survey.answerMethod]}
+                        </span>
+                      )}
                       <div className="-mx-(--card-spacing) mt-auto flex h-56 shrink-0 flex-col gap-2 border-t border-gray-200 bg-gray-100 px-(--card-spacing) py-2.5">
                         <p className="text-foreground/70 shrink-0 text-sm font-semibold tracking-wide">
                           必須条件
