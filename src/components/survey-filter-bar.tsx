@@ -1,3 +1,7 @@
+import { ChevronDown } from "lucide-react";
+import { Popover } from "radix-ui";
+import { DateMultiPicker } from "@/components/date-multi-picker";
+import { formatDates } from "@/lib/date";
 import type { SurveyFilters } from "@/lib/survey-filters";
 import { ANSWER_METHOD_LABELS } from "@/lib/types/survey";
 
@@ -82,15 +86,37 @@ export function SurveyFilterBar({
           options={REWARD_OPTIONS}
           onChange={(value) => setFilter("reward", value)}
         />
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium">参加したい日</span>
-          <input
-            type="date"
-            value={filters.date}
-            onChange={(e) => setFilter("date", e.target.value)}
-            className={controlClass}
-          />
-        </label>
+        <div className="flex flex-col gap-1 text-sm">
+          <span id="filter-dates-label" className="font-medium">
+            参加したい日
+          </span>
+          <Popover.Root>
+            <Popover.Trigger
+              aria-labelledby="filter-dates-label"
+              className={`${controlClass} flex items-center justify-between gap-2 text-left`}
+            >
+              <span className="min-w-0 truncate">
+                {filters.dates.length > 0
+                  ? formatDates(filters.dates)
+                  : "すべて"}
+              </span>
+              <ChevronDown className="size-4 shrink-0 opacity-50" />
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                align="start"
+                sideOffset={4}
+                className="z-50 w-72 rounded-lg bg-white p-2 shadow-lg"
+              >
+                <DateMultiPicker
+                  labelledBy="filter-dates-label"
+                  value={filters.dates}
+                  onChange={(dates) => setFilter("dates", dates)}
+                />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
       </div>
       <div className="flex justify-end">
         <button

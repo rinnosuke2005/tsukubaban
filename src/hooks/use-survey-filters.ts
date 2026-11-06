@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import {
   DEFAULT_SURVEY_FILTERS,
+  isDefaultFilters,
   type SurveyFilters,
 } from "@/lib/survey-filters";
 
@@ -30,9 +31,10 @@ export function useSurveyFilters(): UseSurveyFiltersResult {
     setFilters(DEFAULT_SURVEY_FILTERS);
   }, []);
 
-  const isDefault = (
-    Object.keys(DEFAULT_SURVEY_FILTERS) as (keyof SurveyFilters)[]
-  ).every((key) => filters[key] === DEFAULT_SURVEY_FILTERS[key]);
-
-  return { filters, setFilter, clearFilters, isDefault };
+  return {
+    filters,
+    setFilter,
+    clearFilters,
+    isDefault: isDefaultFilters(filters),
+  };
 }

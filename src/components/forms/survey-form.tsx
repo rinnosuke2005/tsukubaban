@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DateMultiPicker } from "@/components/forms/date-multi-picker";
+import { DateMultiPicker } from "@/components/date-multi-picker";
 import { RequirementFields } from "@/components/forms/requirement-fields";
 import { Button } from "@/components/ui/button";
 import {

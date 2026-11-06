@@ -12,7 +12,8 @@ type DateMultiPickerProps = {
   labelledBy?: string;
 };
 
-// 1日ずつタップして実施日を選ぶカレンダー。今日より前の日は選べない
+// 1日ずつタップして複数の日付を選ぶカレンダー。今日より前の日は選べない。
+// 投稿フォームの実施日と、一覧の「参加したい日」の絞り込みで使う
 export function DateMultiPicker({
   value,
   onChange,
