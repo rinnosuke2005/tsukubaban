@@ -123,6 +123,13 @@ function validateSurvey(survey: Survey): SurveyErrors {
   if (survey.answerMethod === null) {
     errors.answerMethod = "回答方法を選択してください";
   }
+  // 対面は日程が分からないと参加の判断ができないため、実施日を必須にする
+  if (
+    survey.answerMethod === "in_person" &&
+    survey.availableDates.length === 0
+  ) {
+    errors.availableDates = "対面の場合は実施日を1日以上選んでください";
+  }
   if (survey.hasReward === null) {
     errors.hasReward = "謝礼の有無を選択してください";
   }
@@ -137,6 +144,7 @@ export function SurveyForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const contactField = CONTACT_FIELD[survey.contactType];
+  const isInPerson = survey.answerMethod === "in_person";
 
   function changeContactType(contactType: ContactType) {
     if (contactType === survey.contactType) return;
@@ -261,7 +269,11 @@ export function SurveyForm() {
                   aria-pressed={survey.answerMethod === method}
                   onClick={() => {
                     setSurvey({ ...survey, answerMethod: method });
-                    setErrors((prev) => ({ ...prev, answerMethod: undefined }));
+                    setErrors((prev) => ({
+                      ...prev,
+                      answerMethod: undefined,
+                      availableDates: undefined,
+                    }));
                   }}
                   className="text-muted-foreground border-input py-2 text-sm not-first:border-l aria-pressed:bg-purple-50 aria-pressed:font-bold aria-pressed:text-purple-700"
                 >
@@ -275,18 +287,25 @@ export function SurveyForm() {
             <FieldError>{errors.answerMethod}</FieldError>
           </Field>
 
-          <Field>
-            <FieldLabel id="survey-available-dates-label">実施日</FieldLabel>
+          <Field data-invalid={!!errors.availableDates}>
+            <FieldLabel id="survey-available-dates-label">
+              実施日
+              {isInPerson && <span className="text-destructive">*</span>}
+            </FieldLabel>
             <FieldDescription>
-              参加できる日をタップして選んでください。日程の指定がなければ空のままで構いません
+              {isInPerson
+                ? "参加できる日をタップして選んでください。対面の場合は1日以上選んでください"
+                : "参加できる日をタップして選んでください。いつでも回答できる場合は空のままで構いません"}
             </FieldDescription>
             <DateMultiPicker
               labelledBy="survey-available-dates-label"
               value={survey.availableDates}
-              onChange={(availableDates) =>
-                setSurvey({ ...survey, availableDates })
-              }
+              onChange={(availableDates) => {
+                setSurvey({ ...survey, availableDates });
+                setErrors((prev) => ({ ...prev, availableDates: undefined }));
+              }}
             />
+            <FieldError>{errors.availableDates}</FieldError>
           </Field>
 
           <Field data-invalid={!!errors.contactValue}>

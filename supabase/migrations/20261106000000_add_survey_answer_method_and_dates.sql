@@ -101,6 +101,10 @@ begin
   if cardinality(v_available_dates) > 100 then
     raise exception 'available_dates must be 100 dates or less';
   end if;
+  -- 対面は日程が分からないと参加の判断ができないため、実施日を必須にする
+  if p_answer_method = 'in_person' and cardinality(v_available_dates) = 0 then
+    raise exception 'available_dates must not be empty for in_person';
+  end if;
 
   insert into public.surveys (
     title, recruiter_name, affiliation, contact_type, contact_value,
