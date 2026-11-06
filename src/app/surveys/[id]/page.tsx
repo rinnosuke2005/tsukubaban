@@ -5,9 +5,9 @@ import { useState } from "react";
 import { BackLink } from "@/components/back-link";
 import { Header } from "@/components/header";
 import { useSurvey } from "@/hooks/use-survey";
+import { formatDates } from "@/lib/date";
 import {
   ANSWER_METHOD_LABELS,
-  formatPeriod,
   formatReward,
   type Survey,
 } from "@/lib/types/survey";
@@ -98,7 +98,6 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function SurveyDetail({ survey }: { survey: Survey }) {
   const postedAt = formatDate(survey.createdAt);
   const reward = formatReward(survey);
-  const period = formatPeriod(survey);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pt-2 pb-28 sm:px-6 md:pb-16">
@@ -120,10 +119,9 @@ function SurveyDetail({ survey }: { survey: Survey }) {
               ["募集者", survey.recruiterName],
               ["所属", survey.affiliation],
               ...(reward ? [["謝礼", reward]] : []),
-              ...(survey.estimatedMinutes !== null
-                ? [["所要時間", `約${survey.estimatedMinutes}分`]]
+              ...(survey.availableDates.length > 0
+                ? [["実施日", formatDates(survey.availableDates)]]
                 : []),
-              ...(period ? [["実施期間", period]] : []),
               ...(postedAt ? [["投稿日", postedAt]] : []),
             ].map(([label, value]) => (
               <div

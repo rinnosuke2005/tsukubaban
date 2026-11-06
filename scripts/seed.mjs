@@ -4,13 +4,17 @@
 //   npm run db:seed
 import { createClient } from "@supabase/supabase-js";
 
-// 実施期間は投入した日を基準に決める（いつ seed しても「募集中」「終了」が混ざるように）
+// 実施日は投入した日を基準に決める（いつ seed しても「これから」「終了」が混ざるように）
 function day(offset) {
   const date = new Date();
   date.setDate(date.getDate() + offset);
   const pad = (n) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
+
+const days = (...offsets) => offsets.map(day);
+const range = (from, to) =>
+  Array.from({ length: to - from + 1 }, (_, i) => day(from + i));
 
 // カードの見た目の差異が出るよう、あえて長さの違う文言を混ぜている
 const SURVEYS = [
@@ -22,7 +26,6 @@ const SURVEYS = [
     p_contact_value: "https://forms.gle/seed-01",
     p_answer_method: "online",
     p_has_reward: false,
-    p_estimated_minutes: 5,
     p_requirements: [],
   },
   {
@@ -32,12 +35,11 @@ const SURVEYS = [
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-02",
     p_answer_method: "online",
-    p_period_end: day(14),
+    p_available_dates: range(0, 14),
     p_description:
       "SNSの利用頻度と利用目的についてお尋ねします。所要時間は5分程度です。",
     p_has_reward: true,
     p_reward_detail: "図書カード500円",
-    p_estimated_minutes: 5,
     p_requirements: ["20歳以上であること"],
     p_preferred_requirements: ["写真や動画の投稿経験がある方歓迎"],
   },
@@ -48,10 +50,8 @@ const SURVEYS = [
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-03",
     p_answer_method: "online",
-    p_period_start: day(-3),
-    p_period_end: day(7),
+    p_available_dates: days(1, 2, 4),
     p_has_reward: false,
-    p_estimated_minutes: 10,
     p_requirements: [
       "スマートフォンを所有していること",
       "本調査への協力に同意いただける方",
@@ -67,7 +67,6 @@ const SURVEYS = [
     p_description:
       "防災意識と日頃の備えについて、メールで質問票をお送りします。回答はメールへの返信でお願いします。",
     p_has_reward: true,
-    p_estimated_minutes: 10,
     p_requirements: [
       "筑波大学の学生であること",
       "20歳以上であること",
@@ -82,10 +81,8 @@ const SURVEYS = [
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-05",
     p_answer_method: "online",
-    p_period_start: day(-20),
-    p_period_end: day(-2),
+    p_available_dates: days(-5, -3),
     p_has_reward: false,
-    p_estimated_minutes: 15,
     p_requirements: [
       "過去1年以内にオンラインショッピングを利用したことがある方",
     ],
@@ -97,13 +94,11 @@ const SURVEYS = [
     p_contact_type: "phone",
     p_contact_value: "029-000-0000",
     p_answer_method: "in_person",
-    p_period_start: day(3),
-    p_period_end: day(10),
+    p_available_dates: days(3, 4, 6),
     p_description:
       "オンライン授業と対面授業の学習効果について、筑波大学構内で10分程度のインタビューを行います。日程は電話で調整します。",
     p_has_reward: true,
     p_reward_detail: "QUOカード1,000円分",
-    p_estimated_minutes: 10,
     p_requirements: [
       "筑波大学の学生であること",
       "回答は任意で、いつでも中断できます",
@@ -117,7 +112,6 @@ const SURVEYS = [
     p_contact_value: "https://forms.gle/seed-07",
     p_answer_method: "online",
     p_has_reward: false,
-    p_estimated_minutes: 5,
     p_requirements: [],
   },
   {
@@ -128,13 +122,11 @@ const SURVEYS = [
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-08",
     p_answer_method: "online",
-    p_period_start: day(0),
-    p_period_end: day(30),
+    p_available_dates: range(0, 30),
     p_description:
       "睡眠時間・就寝時刻と学業成績の関連を調べる卒業研究です。平日と休日の睡眠習慣、授業への出席状況、直近の学期の成績区分についてお尋ねします。所要時間は10分程度で、設問には無理のない範囲でお答えください。回答内容は統計処理のみに使用し、個人が特定される形で公開することはありません。回答後に同意を撤回したい場合は、募集者までご連絡ください。",
     p_has_reward: true,
     p_reward_detail: "図書カード500円",
-    p_estimated_minutes: 10,
     p_requirements: [
       "筑波大学の学生であること",
       "スマートフォンを所有していること",
@@ -150,12 +142,10 @@ const SURVEYS = [
     p_contact_type: "url",
     p_contact_value: "https://forms.gle/seed-09",
     p_answer_method: "in_person",
-    p_period_start: day(1),
-    p_period_end: day(1),
+    p_available_dates: days(1),
     p_description:
       "学内の食堂で試食をしてもらい、その場で感想をお聞きします。参加はフォームから予約してください。",
     p_has_reward: false,
-    p_estimated_minutes: 3,
     p_requirements: [
       "20歳以上であること",
       "回答は任意で、いつでも中断できます",
@@ -168,11 +158,9 @@ const SURVEYS = [
     p_contact_type: "email",
     p_contact_value: "seed-tsukuba@example.com",
     p_answer_method: "in_person",
-    p_period_start: day(5),
-    p_period_end: day(20),
+    p_available_dates: days(5, 6, 12, 13),
     p_has_reward: true,
     p_reward_detail: "つくば市内で使える商品券500円分",
-    p_estimated_minutes: 20,
     p_requirements: ["週3回以上SNSを利用している方"],
   },
 ];

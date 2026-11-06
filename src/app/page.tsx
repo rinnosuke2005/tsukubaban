@@ -21,11 +21,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { matchesFilters } from "@/lib/survey-filters";
-import {
-  ANSWER_METHOD_LABELS,
-  formatPeriod,
-  formatReward,
-} from "@/lib/types/survey";
+import { formatDates } from "@/lib/date";
+import { ANSWER_METHOD_LABELS, formatReward } from "@/lib/types/survey";
 
 const REQUIREMENTS_PREVIEW_COUNT = 3;
 
@@ -96,7 +93,10 @@ export default function Home() {
           <ul className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {filteredSurveys.map((survey) => {
               const reward = formatReward(survey);
-              const period = formatPeriod(survey);
+              const dates =
+                survey.availableDates.length > 0
+                  ? formatDates(survey.availableDates)
+                  : null;
               const previewRequirements = survey.requirements.slice(
                 0,
                 REQUIREMENTS_PREVIEW_COUNT,
@@ -156,23 +156,11 @@ export default function Home() {
                             謝礼：{reward}
                           </span>
                         )}
-                        {survey.estimatedMinutes !== null && (
-                          <span className="flex min-w-0 items-center gap-1.5 truncate text-sm">
-                            <svg
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                              className="size-3.5 shrink-0"
-                            >
-                              <circle cx="12" cy="12" r="9" />
-                              <path d="M12 7v5l3 2" />
-                            </svg>
-                            所要時間：約{survey.estimatedMinutes}分
-                          </span>
-                        )}
-                        {period && (
-                          <span className="flex min-w-0 items-center gap-1.5 truncate text-sm">
+                        {dates && (
+                          <span
+                            className="flex min-w-0 items-center gap-1.5 truncate text-sm"
+                            title={dates}
+                          >
                             <svg
                               viewBox="0 0 24 24"
                               fill="none"
@@ -183,7 +171,7 @@ export default function Home() {
                               <rect x="3" y="5" width="18" height="16" rx="2" />
                               <path d="M3 10h18M8 3v4M16 3v4" />
                             </svg>
-                            実施期間：{period}
+                            実施日：{dates}
                           </span>
                         )}
                       </CardDescription>

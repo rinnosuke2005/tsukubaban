@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { DateMultiPicker } from "@/components/forms/date-multi-picker";
 import { RequirementFields } from "@/components/forms/requirement-fields";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +25,6 @@ import {
 
 const DESCRIPTION_MAX_LENGTH = 700;
 const REWARD_DETAIL_MAX_LENGTH = 100;
-const ESTIMATED_MINUTES_MAX = 999;
 
 const REWARD_OPTIONS = [
   { value: true, label: "あり" },
@@ -74,10 +74,8 @@ const initialSurvey: Survey = {
   preferredRequirements: [""],
   hasReward: null,
   rewardDetail: "",
-  estimatedMinutes: null,
   answerMethod: null,
-  periodStart: null,
-  periodEnd: null,
+  availableDates: [],
 };
 
 type SurveyErrors = Partial<Record<keyof Survey, string>>;
@@ -106,17 +104,7 @@ function validateContact(survey: Survey): string | undefined {
   }
 }
 
-function parseEstimatedMinutes(value: string): number | null {
-  const trimmed = value.trim();
-  if (!/^\d+$/.test(trimmed)) return null;
-  const minutes = Number(trimmed);
-  return minutes >= 1 && minutes <= ESTIMATED_MINUTES_MAX ? minutes : null;
-}
-
-function validateSurvey(
-  survey: Survey,
-  estimatedMinutesInput: string,
-): SurveyErrors {
+function validateSurvey(survey: Survey): SurveyErrors {
   const errors: SurveyErrors = {};
 
   if (!survey.title.trim()) {
@@ -135,18 +123,8 @@ function validateSurvey(
   if (survey.answerMethod === null) {
     errors.answerMethod = "回答方法を選択してください";
   }
-  if (
-    survey.periodStart &&
-    survey.periodEnd &&
-    survey.periodStart > survey.periodEnd
-  ) {
-    errors.periodEnd = "終了日は開始日以降の日付にしてください";
-  }
   if (survey.hasReward === null) {
     errors.hasReward = "謝礼の有無を選択してください";
-  }
-  if (parseEstimatedMinutes(estimatedMinutesInput) === null) {
-    errors.estimatedMinutes = `所要時間を1〜${ESTIMATED_MINUTES_MAX}の整数（分）で入力してください`;
   }
 
   return errors;
@@ -155,8 +133,6 @@ function validateSurvey(
 export function SurveyForm() {
   const router = useRouter();
   const [survey, setSurvey] = useState<Survey>(initialSurvey);
-  // number 入力は入力途中の空文字や未確定値を扱うため、文字列のまま保持して送信時に変換する
-  const [estimatedMinutesInput, setEstimatedMinutesInput] = useState("");
   const [errors, setErrors] = useState<SurveyErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -181,7 +157,7 @@ export function SurveyForm() {
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const validationErrors = validateSurvey(survey, estimatedMinutesInput);
+    const validationErrors = validateSurvey(survey);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -201,14 +177,12 @@ export function SurveyForm() {
         contactValue: survey.contactValue.trim(),
         description: survey.description.trim(),
         rewardDetail: survey.rewardDetail.trim(),
-        estimatedMinutes: parseEstimatedMinutes(estimatedMinutesInput),
         requirements: trimmedRequirements,
         preferredRequirements: survey.preferredRequirements
           .map((r) => r.trim())
           .filter((r) => r !== ""),
       });
       setSurvey(initialSurvey);
-      setEstimatedMinutesInput("");
       router.push("/");
     } catch (err) {
       setSubmitError(
@@ -301,36 +275,18 @@ export function SurveyForm() {
             <FieldError>{errors.answerMethod}</FieldError>
           </Field>
 
-          <Field data-invalid={!!errors.periodEnd}>
-            <FieldLabel id="survey-period-label">実施期間</FieldLabel>
-            <div
-              role="group"
-              aria-labelledby="survey-period-label"
-              className="flex items-center gap-2"
-            >
-              <Input
-                type="date"
-                aria-label="開始日"
-                value={survey.periodStart ?? ""}
-                onChange={(e) =>
-                  setSurvey({ ...survey, periodStart: e.target.value || null })
-                }
-              />
-              <span className="text-muted-foreground">〜</span>
-              <Input
-                type="date"
-                aria-label="終了日"
-                value={survey.periodEnd ?? ""}
-                onChange={(e) =>
-                  setSurvey({ ...survey, periodEnd: e.target.value || null })
-                }
-                aria-invalid={!!errors.periodEnd}
-              />
-            </div>
+          <Field>
+            <FieldLabel id="survey-available-dates-label">実施日</FieldLabel>
             <FieldDescription>
-              日程が決まっている場合に入力してください。片方だけでも構いません
+              参加できる日をタップして選んでください。日程の指定がなければ空のままで構いません
             </FieldDescription>
-            <FieldError>{errors.periodEnd}</FieldError>
+            <DateMultiPicker
+              labelledBy="survey-available-dates-label"
+              value={survey.availableDates}
+              onChange={(availableDates) =>
+                setSurvey({ ...survey, availableDates })
+              }
+            />
           </Field>
 
           <Field data-invalid={!!errors.contactValue}>
@@ -406,24 +362,6 @@ export function SurveyForm() {
               />
             )}
             <FieldError>{errors.hasReward}</FieldError>
-          </Field>
-
-          <Field data-invalid={!!errors.estimatedMinutes}>
-            <FieldLabel htmlFor="survey-estimated-minutes">
-              所要時間（分）<span className="text-destructive">*</span>
-            </FieldLabel>
-            <Input
-              id="survey-estimated-minutes"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={ESTIMATED_MINUTES_MAX}
-              placeholder="例）5"
-              value={estimatedMinutesInput}
-              onChange={(e) => setEstimatedMinutesInput(e.target.value)}
-              aria-invalid={!!errors.estimatedMinutes}
-            />
-            <FieldError>{errors.estimatedMinutes}</FieldError>
           </Field>
 
           <Field>

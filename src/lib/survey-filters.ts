@@ -14,12 +14,9 @@ export const DEFAULT_SURVEY_FILTERS: SurveyFilters = {
 };
 
 // answerMethod / hasReward が null（未設定）の募集は、その条件を指定したときは除外する。
-// 実施期間は未指定の側を「制限なし」とみなす。日付は "YYYY-MM-DD" 同士なので文字列で比較できる
+// 実施日が空の募集は日程の指定がないため、どの日を選んでも表示する
 export function matchesFilters(
-  survey: Pick<
-    Survey,
-    "answerMethod" | "hasReward" | "periodStart" | "periodEnd"
-  >,
+  survey: Pick<Survey, "answerMethod" | "hasReward" | "availableDates">,
   filters: SurveyFilters,
 ): boolean {
   if (
@@ -34,9 +31,12 @@ export function matchesFilters(
     if (survey.hasReward !== (filters.reward === "yes")) return false;
   }
 
-  if (filters.date) {
-    if (survey.periodStart && filters.date < survey.periodStart) return false;
-    if (survey.periodEnd && filters.date > survey.periodEnd) return false;
+  if (
+    filters.date &&
+    survey.availableDates.length > 0 &&
+    !survey.availableDates.includes(filters.date)
+  ) {
+    return false;
   }
 
   return true;
