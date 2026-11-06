@@ -21,7 +21,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { matchesFilters } from "@/lib/survey-filters";
-import { CONTACT_TYPE_LABELS, formatReward } from "@/lib/types/survey";
+import { formatDates } from "@/lib/date";
+import { ANSWER_METHOD_LABELS, formatReward } from "@/lib/types/survey";
 
 const REQUIREMENTS_PREVIEW_COUNT = 3;
 
@@ -92,6 +93,10 @@ export default function Home() {
           <ul className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {filteredSurveys.map((survey) => {
               const reward = formatReward(survey);
+              const dates =
+                survey.availableDates.length > 0
+                  ? formatDates(survey.availableDates)
+                  : null;
               const previewRequirements = survey.requirements.slice(
                 0,
                 REQUIREMENTS_PREVIEW_COUNT,
@@ -151,8 +156,11 @@ export default function Home() {
                             謝礼：{reward}
                           </span>
                         )}
-                        {survey.estimatedMinutes !== null && (
-                          <span className="flex min-w-0 items-center gap-1.5 truncate text-sm">
+                        {dates && (
+                          <span
+                            className="flex min-w-0 items-center gap-1.5 truncate text-sm"
+                            title={dates}
+                          >
                             <svg
                               viewBox="0 0 24 24"
                               fill="none"
@@ -160,18 +168,20 @@ export default function Home() {
                               strokeWidth={2}
                               className="size-3.5 shrink-0"
                             >
-                              <circle cx="12" cy="12" r="9" />
-                              <path d="M12 7v5l3 2" />
+                              <rect x="3" y="5" width="18" height="16" rx="2" />
+                              <path d="M3 10h18M8 3v4M16 3v4" />
                             </svg>
-                            所要時間：約{survey.estimatedMinutes}分
+                            実施日：{dates}
                           </span>
                         )}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="-mb-(--card-spacing) flex flex-1 flex-col">
-                      <span className="mb-3 w-fit rounded-md bg-purple-50 px-2.5 py-1 text-base text-purple-700">
-                        {CONTACT_TYPE_LABELS[survey.contactType]}
-                      </span>
+                      {survey.answerMethod && (
+                        <span className="mb-3 w-fit rounded-md bg-purple-50 px-2.5 py-1 text-base text-purple-700">
+                          {ANSWER_METHOD_LABELS[survey.answerMethod]}
+                        </span>
+                      )}
                       <div className="-mx-(--card-spacing) mt-auto flex h-56 shrink-0 flex-col gap-2 border-t border-gray-200 bg-gray-100 px-(--card-spacing) py-2.5">
                         <p className="text-foreground/70 shrink-0 text-sm font-semibold tracking-wide">
                           必須条件

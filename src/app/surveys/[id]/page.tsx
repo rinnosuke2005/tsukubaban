@@ -5,8 +5,9 @@ import { useState } from "react";
 import { BackLink } from "@/components/back-link";
 import { Header } from "@/components/header";
 import { useSurvey } from "@/hooks/use-survey";
+import { formatDates } from "@/lib/date";
 import {
-  CONTACT_TYPE_LABELS,
+  ANSWER_METHOD_LABELS,
   formatReward,
   type Survey,
 } from "@/lib/types/survey";
@@ -103,11 +104,13 @@ function SurveyDetail({ survey }: { survey: Survey }) {
       <h1 className="text-2xl font-bold break-words md:text-3xl">
         {survey.title}
       </h1>
-      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="rounded bg-gray-100 px-2.5 py-0.5 text-sm font-medium">
-          {CONTACT_TYPE_LABELS[survey.contactType]}
-        </span>
-      </div>
+      {survey.answerMethod && (
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className="rounded bg-gray-100 px-2.5 py-0.5 text-sm font-medium">
+            {ANSWER_METHOD_LABELS[survey.answerMethod]}
+          </span>
+        </div>
+      )}
 
       <div className="mt-6 grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_280px] md:gap-12">
         <main className="min-w-0">
@@ -116,8 +119,8 @@ function SurveyDetail({ survey }: { survey: Survey }) {
               ["募集者", survey.recruiterName],
               ["所属", survey.affiliation],
               ...(reward ? [["謝礼", reward]] : []),
-              ...(survey.estimatedMinutes !== null
-                ? [["所要時間", `約${survey.estimatedMinutes}分`]]
+              ...(survey.availableDates.length > 0
+                ? [["実施日", formatDates(survey.availableDates)]]
                 : []),
               ...(postedAt ? [["投稿日", postedAt]] : []),
             ].map(([label, value]) => (

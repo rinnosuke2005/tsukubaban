@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { DateMultiPicker } from "@/components/date-multi-picker";
 import { RequirementFields } from "@/components/forms/requirement-fields";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,14 +16,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createSurvey } from "@/lib/api/surveys";
 import {
+  ANSWER_METHOD_LABELS,
   CONTACT_TYPE_LABELS,
+  type AnswerMethod,
   type ContactType,
   type Survey,
 } from "@/lib/types/survey";
 
 const DESCRIPTION_MAX_LENGTH = 700;
 const REWARD_DETAIL_MAX_LENGTH = 100;
-const ESTIMATED_MINUTES_MAX = 999;
 
 const REWARD_OPTIONS = [
   { value: true, label: "あり" },
@@ -30,6 +32,8 @@ const REWARD_OPTIONS = [
 ];
 
 const CONTACT_TYPES: ContactType[] = ["url", "email", "phone"];
+
+const ANSWER_METHODS: AnswerMethod[] = ["online", "in_person"];
 
 const CONTACT_FIELD: Record<
   ContactType,
@@ -70,7 +74,8 @@ const initialSurvey: Survey = {
   preferredRequirements: [""],
   hasReward: null,
   rewardDetail: "",
-  estimatedMinutes: null,
+  answerMethod: null,
+  availableDates: [],
 };
 
 type SurveyErrors = Partial<Record<keyof Survey, string>>;
@@ -99,17 +104,7 @@ function validateContact(survey: Survey): string | undefined {
   }
 }
 
-function parseEstimatedMinutes(value: string): number | null {
-  const trimmed = value.trim();
-  if (!/^\d+$/.test(trimmed)) return null;
-  const minutes = Number(trimmed);
-  return minutes >= 1 && minutes <= ESTIMATED_MINUTES_MAX ? minutes : null;
-}
-
-function validateSurvey(
-  survey: Survey,
-  estimatedMinutesInput: string,
-): SurveyErrors {
+function validateSurvey(survey: Survey): SurveyErrors {
   const errors: SurveyErrors = {};
 
   if (!survey.title.trim()) {
@@ -125,11 +120,18 @@ function validateSurvey(
   if (contactError) {
     errors.contactValue = contactError;
   }
+  if (survey.answerMethod === null) {
+    errors.answerMethod = "回答方法を選択してください";
+  }
+  // 対面は日程が分からないと参加の判断ができないため、実施日を必須にする
+  if (
+    survey.answerMethod === "in_person" &&
+    survey.availableDates.length === 0
+  ) {
+    errors.availableDates = "対面の場合は実施日を1日以上選んでください";
+  }
   if (survey.hasReward === null) {
     errors.hasReward = "謝礼の有無を選択してください";
-  }
-  if (parseEstimatedMinutes(estimatedMinutesInput) === null) {
-    errors.estimatedMinutes = `所要時間を1〜${ESTIMATED_MINUTES_MAX}の整数（分）で入力してください`;
   }
 
   return errors;
@@ -138,12 +140,11 @@ function validateSurvey(
 export function SurveyForm() {
   const router = useRouter();
   const [survey, setSurvey] = useState<Survey>(initialSurvey);
-  // number 入力は入力途中の空文字や未確定値を扱うため、文字列のまま保持して送信時に変換する
-  const [estimatedMinutesInput, setEstimatedMinutesInput] = useState("");
   const [errors, setErrors] = useState<SurveyErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const contactField = CONTACT_FIELD[survey.contactType];
+  const isInPerson = survey.answerMethod === "in_person";
 
   function changeContactType(contactType: ContactType) {
     if (contactType === survey.contactType) return;
@@ -164,7 +165,7 @@ export function SurveyForm() {
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const validationErrors = validateSurvey(survey, estimatedMinutesInput);
+    const validationErrors = validateSurvey(survey);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -184,14 +185,12 @@ export function SurveyForm() {
         contactValue: survey.contactValue.trim(),
         description: survey.description.trim(),
         rewardDetail: survey.rewardDetail.trim(),
-        estimatedMinutes: parseEstimatedMinutes(estimatedMinutesInput),
         requirements: trimmedRequirements,
         preferredRequirements: survey.preferredRequirements
           .map((r) => r.trim())
           .filter((r) => r !== ""),
       });
       setSurvey(initialSurvey);
-      setEstimatedMinutesInput("");
       router.push("/");
     } catch (err) {
       setSubmitError(
@@ -254,9 +253,64 @@ export function SurveyForm() {
             </Field>
           </div>
 
+          <Field data-invalid={!!errors.answerMethod}>
+            <FieldLabel id="survey-answer-method-label">
+              回答方法<span className="text-destructive">*</span>
+            </FieldLabel>
+            <div
+              role="group"
+              aria-labelledby="survey-answer-method-label"
+              className="border-input grid grid-cols-2 overflow-hidden rounded-lg border"
+            >
+              {ANSWER_METHODS.map((method) => (
+                <button
+                  key={method}
+                  type="button"
+                  aria-pressed={survey.answerMethod === method}
+                  onClick={() => {
+                    setSurvey({ ...survey, answerMethod: method });
+                    setErrors((prev) => ({
+                      ...prev,
+                      answerMethod: undefined,
+                      availableDates: undefined,
+                    }));
+                  }}
+                  className="text-muted-foreground border-input py-2 text-sm not-first:border-l aria-pressed:bg-purple-50 aria-pressed:font-bold aria-pressed:text-purple-700"
+                >
+                  {ANSWER_METHOD_LABELS[method]}
+                </button>
+              ))}
+            </div>
+            <FieldDescription>
+              Webフォーム・メール・電話はオンライン、会って実施するものは対面を選んでください
+            </FieldDescription>
+            <FieldError>{errors.answerMethod}</FieldError>
+          </Field>
+
+          <Field data-invalid={!!errors.availableDates}>
+            <FieldLabel id="survey-available-dates-label">
+              実施日
+              {isInPerson && <span className="text-destructive">*</span>}
+            </FieldLabel>
+            <FieldDescription>
+              {isInPerson
+                ? "参加できる日をタップして選んでください。対面の場合は1日以上選んでください"
+                : "参加できる日をタップして選んでください。いつでも回答できる場合は空のままで構いません"}
+            </FieldDescription>
+            <DateMultiPicker
+              labelledBy="survey-available-dates-label"
+              value={survey.availableDates}
+              onChange={(availableDates) => {
+                setSurvey({ ...survey, availableDates });
+                setErrors((prev) => ({ ...prev, availableDates: undefined }));
+              }}
+            />
+            <FieldError>{errors.availableDates}</FieldError>
+          </Field>
+
           <Field data-invalid={!!errors.contactValue}>
             <FieldLabel id="survey-contact-type-label">
-              回答方法<span className="text-destructive">*</span>
+              回答先・連絡先<span className="text-destructive">*</span>
             </FieldLabel>
             <div
               role="group"
@@ -329,24 +383,6 @@ export function SurveyForm() {
             <FieldError>{errors.hasReward}</FieldError>
           </Field>
 
-          <Field data-invalid={!!errors.estimatedMinutes}>
-            <FieldLabel htmlFor="survey-estimated-minutes">
-              所要時間（分）<span className="text-destructive">*</span>
-            </FieldLabel>
-            <Input
-              id="survey-estimated-minutes"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={ESTIMATED_MINUTES_MAX}
-              placeholder="例）5"
-              value={estimatedMinutesInput}
-              onChange={(e) => setEstimatedMinutesInput(e.target.value)}
-              aria-invalid={!!errors.estimatedMinutes}
-            />
-            <FieldError>{errors.estimatedMinutes}</FieldError>
-          </Field>
-
           <Field>
             <FieldLabel htmlFor="survey-description">
               アンケートの概要
@@ -355,7 +391,7 @@ export function SurveyForm() {
               id="survey-description"
               maxLength={DESCRIPTION_MAX_LENGTH}
               placeholder={
-                "例）卒業論文の調査として、学習習慣と睡眠時間の関係を調べています。\n回答期間：11月15日まで"
+                "例）卒業論文の調査として、学習習慣と睡眠時間の関係を調べています。"
               }
               value={survey.description}
               onChange={(e) =>
