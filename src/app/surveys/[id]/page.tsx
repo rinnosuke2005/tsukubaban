@@ -1,5 +1,6 @@
 "use client";
 
+import { ExternalLink } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { BackLink } from "@/components/back-link";
@@ -36,9 +37,19 @@ function ContactAction({ survey }: { survey: Survey }) {
           >
             回答画面にすすむ
           </a>
-          <p className="text-muted-foreground hidden text-xs md:block">
-            外部サイトが新しいタブで開きます。
-          </p>
+          {/* 投稿された URL は誰でも自由に登録できるため、押す前に行き先を確認できるよう全文を表示する */}
+          <a
+            href={survey.contactValue}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground text-center text-sm font-medium break-all underline decoration-purple-300 underline-offset-4 hover:decoration-purple-500"
+          >
+            {survey.contactValue}
+            <ExternalLink
+              className="ml-1 inline size-3.5 align-[-0.125em]"
+              aria-hidden
+            />
+          </a>
         </>
       );
     case "email":
