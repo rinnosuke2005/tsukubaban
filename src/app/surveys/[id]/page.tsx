@@ -22,19 +22,8 @@ function formatDate(iso: string | undefined) {
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
 }
 
-// 投稿された URL は誰でも自由に登録できるため、押す前に行き先を確認できるようドメインを表示する
-function getHostname(url: string): string | null {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return null;
-  }
-}
-
 function ContactAction({ survey }: { survey: Survey }) {
   const [isPhoneShown, setIsPhoneShown] = useState(false);
-  const hostname =
-    survey.contactType === "url" ? getHostname(survey.contactValue) : null;
 
   switch (survey.contactType) {
     case "url":
@@ -48,24 +37,19 @@ function ContactAction({ survey }: { survey: Survey }) {
           >
             回答画面にすすむ
           </a>
-          {hostname ? (
-            <p className="text-muted-foreground flex items-center justify-center gap-1 text-sm">
-              <span className="shrink-0">移動先：</span>
-              <a
-                href={survey.contactValue}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground inline-flex min-w-0 items-center gap-1 font-medium underline decoration-purple-300 underline-offset-4 hover:decoration-purple-500"
-              >
-                <span className="break-all">{hostname}</span>
-                <ExternalLink className="size-3.5 shrink-0" aria-hidden />
-              </a>
-            </p>
-          ) : (
-            <p className="text-muted-foreground text-center text-xs">
-              外部サイトが新しいタブで開きます。
-            </p>
-          )}
+          {/* 投稿された URL は誰でも自由に登録できるため、押す前に行き先を確認できるよう全文を表示する */}
+          <a
+            href={survey.contactValue}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground text-center text-sm font-medium break-all underline decoration-purple-300 underline-offset-4 hover:decoration-purple-500"
+          >
+            {survey.contactValue}
+            <ExternalLink
+              className="ml-1 inline size-3.5 align-[-0.125em]"
+              aria-hidden
+            />
+          </a>
         </>
       );
     case "email":
