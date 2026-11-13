@@ -23,7 +23,7 @@ import {
   type Survey,
 } from "@/lib/types/survey";
 
-const DESCRIPTION_MAX_LENGTH = 700;
+const DESCRIPTION_MAX_LENGTH = 1200;
 const REWARD_DETAIL_MAX_LENGTH = 100;
 
 const REWARD_OPTIONS = [
